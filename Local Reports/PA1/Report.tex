@@ -321,7 +321,50 @@ structure, and the representation drifts more. The larger token size could also 
 
 The t-SNE diagrams (Figures\ref{fig:tsne-clip} \ref{fig:tsne-resnet} \ref{fig:tsne-vit} in the appendix) agree with these results.
 
+\subsection{Unsupervised Domain Adaptation}
 
+\subsubsection{Source Only ERM}
+
+We first train both the model and the classifier hear on the source domains using cross entropy, which results in these measurements.
+
+\begin{table}[H]
+  \caption{TODO: your caption and key take-away.}
+  \label{tab:source-only}
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    Domain & Accuracy (\%) & Macro-F1 (\%) \\
+    \midrule
+    Photo (source, val)         & 97.30 & 96.85 \\
+    Art Painting (source, val)  & 91.71 & 91.69 \\
+    Cartoon (source, val)       & 95.74 & 96.00 \\
+    \midrule
+    Mean source                 & 94.91 & 94.85 \\
+    Worst source                & 91.71 & 91.69 \\
+    \midrule
+    Sketch (target)             & 61.59 & 63.09 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \caption{TODO: your caption and key take-away.}
+  \label{tab:source-only-per-class}
+  \centering
+  \begin{tabular}{lc}
+    \toprule
+    Class & Sketch accuracy (\%) \\
+    \midrule
+    Dog      & 21.11 \\
+    Elephant & 94.73 \\
+    Giraffe  & 77.95 \\
+    Guitar   & 70.07 \\
+    Horse    & 46.32 \\
+    House    & 83.75 \\
+    Person   & 61.25 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 
 \subsection{Cross-Task Discussion}
