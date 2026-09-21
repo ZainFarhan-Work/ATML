@@ -1,0 +1,4 @@
+# Figures here are copies of the originals tracked in PA 1/task1/results/figures/.
+# They live beside Report.tex only because \includegraphics cannot follow a path
+# containing the space in "PA 1". Keep one copy in Git: the source one.
+figures/

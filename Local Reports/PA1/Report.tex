@@ -60,6 +60,8 @@
 \usepackage{microtype}      % microtypography
 \usepackage{xcolor}         % colors
 \usepackage{float}
+\usepackage{amsmath}
+\usepackage{graphicx}
 
 \title{Feature Learning in Supervised AI Models}
 
@@ -220,6 +222,105 @@ between the colour of the objects is still the same, it has just been rotated. H
 
 For this comparison alpha strength of 1 was required, as lower values did not transfer texture well enough. We get the following results:
 
+\begin{table}[H]
+  \caption{Shape vs Texture: Convoutional models are not shape biased.}
+  \label{tab:shape-texture-both}
+  \centering
+  \begin{tabular}{lcccrrrr}
+    \toprule
+    & \multicolumn{5}{c}{Balanced ($n=220$)} & \multicolumn{2}{c}{All accepted ($n=286$)} \\
+    \cmidrule(lr){2-6} \cmidrule(lr){7-8}
+    System & $N_{\text{sh}}$ & $N_{\text{tex}}$ & $N_{\text{oth}}$ & Shape bias & Coverage & Shape bias & Coverage \\
+    \midrule
+    ResNet-50 + linear head     &  54 & 52 & 114 & 50.94 & 48.18 & 57.78 & 47.20 \\
+    ViT-B/16 + linear head      &  99 & 14 & 107 & 87.61 & 51.36 & 89.94 & 55.59 \\
+    CLIP ViT-B-32 + linear head & 116 & 12 &  92 & 90.62 & 58.18 & 91.72 & 59.09 \\
+    CLIP ViT-B-32 zero-shot     & 117 &  7 &  96 & 94.35 & 56.36 & 95.81 & 58.39 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Out of a total of 400 candidate images only 286 were of good enough quality, which were further reduced to 220 to make each class balanced.
+As expected, the Vision Transformers have a considerable shape bias, while the convolutional model does not. Though one point of note is that
+ResNet still managed to score a 50.94 on the Shape Bias. This is considerably higher than the original Geirhos et al. (2019) paper. The reason for this
+can be mostly likely presumed to be the biggest limitation of this experiment.
+
+That is that the images were filtered out manually. This introduced significant human bias in the process making the data unreliable.
+The human eye is considered to be heavily biased towards shape, I personally noticed as well that during the filtering it was much easier for me to tell when the shape data was destroyed
+in comparison to when texture data was to sufficiently applied. It is reasonable to then conclude the data had a bias towards higher quality shape images than texture images.
+
+Another notable observation is that for ViT and ResNet both, there most quantitative category is neither shape nor texture, and CLIP barely has more shape classified images.
+Making the coverage very low, and limiting our ability to draw further conclusions from this data. This can again be contributed to the low quality of the data. The AdaIN
+implementation resulted in images with quite high distortion with our particular dataset, hampering the ability of the models to classify.
+
+\subsubsection{Patch Structure}
+
+We divided the images into 4x4 patches, and shuffled the patches. We feed the shuffled images back in the model to measure the metrics:
+
+\begin{table}[H]
+  \caption{Patch Shuffling: Transformers suffer the most}
+  \label{tab:patch-shuffle}
+  \centering
+  \begin{tabular}{lccccc}
+    \toprule
+    System & Top-1 (\%) & Macro-F1 (\%) & $\Delta$ Top-1 & Consistency (\%) & Mean max conf. \\
+    \midrule
+    ResNet-50 + linear head     & 89.0 & 89.06 & $-7.4$  & 90.4 & 0.87 \\
+    ViT-B/16 + linear head      & 90.4 & 90.52 & $-6.8$  & 92.6 & 0.89 \\
+    CLIP ViT-B-32 + linear head & 84.4 & 84.18 & $-12.2$ & 84.6 & 0.20 \\
+    CLIP ViT-B-32 zero-shot     & 84.4 & 84.20 & $-12.6$ & 84.2 & 0.82 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+When we shuffle the images we destroy the global structure of the image, i.e. the shape. For Vision Transformers this is quite bad as they use the self attention mechanism and look at a global picture.
+Understandably, they suffer the most in accuracy. Convolutional networks however only look at the local area, making them much more resilient to this, further
+texture is preserved more, as each patch can act like a texture patch and we saw in table\ref{tab:shape-texture-both}, they are much more biased towards texture.
+
+The ViT-B and ResNet model are close in accuracy. This is a bit unexpected because we discussed ResNet should perform noticeably better here. The likely culprit is that we used zero padding,
+max pooling, stride 2, and we averaged the final 7x7 map which all contribute to either a lack of local information or hampers its readability for the models.
+
+One final thing of note is that CLIP performs noticeably worse than ViT, even though they share the visual encoder (as a Vision Transformer), the fact that both zero-shot and linear head land at the same number
+implies that its not the involvement of the text encoder in the prediction process. This suggest that contrastive learning (with the text encoder) during pre training or some other stage had some factor that made
+them more dependent factor.\footnote{We also saw more shape bias for them in table\ref{tab:shape-texture-both}, but it was not enough of a difference to warrant any conclusion}
+
+\subsubsection{Representation Analysis}
+
+We have discussed most experiments now, but those mainly measured when the predictions changed and hence also changed the accuracy. But how the model sees and interprets the feature can change even if the
+prediction didn't. We measure the Cosine Similarity and t-SNE maps where relevant.
+
+\begin{table}[H]
+  \caption{Cosine similarities - Expected Results}
+  \label{tab:representation-stability}
+  \centering
+  \small
+  \begin{tabular}{lcccccc}
+    \toprule
+    & \multicolumn{2}{c}{ResNet-50} & \multicolumn{2}{c}{ViT-B/16} & \multicolumn{2}{c}{CLIP ViT-B-32} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+    Intervention & $I_T$ & Norm. & $I_T$ & Norm. & $I_T$ & Norm. \\
+    \midrule
+    Grayscale                  & 0.789 & 0.719 & 0.737 & 0.711 & 0.900 & 0.743 \\
+    Translation ($32$\,px)     & 0.934 & 0.912 & 0.943 & 0.938 & 0.970 & 0.923 \\
+    Patch shuffle              & 0.718 & 0.626 & 0.649 & 0.615 & 0.728 & 0.299 \\
+    Cue conflict vs.\ content  & 0.250 & 0.004 & 0.223 & 0.146 & 0.651 & 0.101 \\
+    Cue conflict vs.\ style    & 0.216 & $-0.041$ & 0.072 & $-0.020$ & 0.580 & $-0.083$ \\
+    \midrule
+    Random-pair floor          & 0.247 & 0.000 & 0.090 & 0.000 & 0.612 & 0.000 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+In terms of grayscale and translation we can see the Norm is rather high. This is consistent with our earlier hypothesis that
+models don't look at colour for classification. And since in translation most features are preserved (shape, texture, colour) and the image in only moved, they are very close to the original
+in representation.
+
+In Patch shuffling the values a bit lower (around 0.6), which is to be expected as the global structure is destroyed. What is more interesting is that CLIP and ViT show a large difference despite
+them both having a Vision Transformer. One plausible explanation is that since CLIP's tokens are twice as large as ViT, they are more dependent on global
+structure, and the representation drifts more. The larger token size could also mean that it covers the boundaries more between patches.
+
+The t-SNE diagrams (Figures\ref{fig:tsne-clip} \ref{fig:tsne-resnet} \ref{fig:tsne-vit} in the appendix) agree with these results.
+
 
 
 
@@ -227,6 +328,30 @@ For this comparison alpha strength of 1 was required, as lower values did not tr
 
 \section{Conclusions}
 \label{sec:conclusion}
+
+\section{Appendix}
+\label{sec:appendix}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/tsne_resnet50.png}
+  \caption{ResNet t-SNE: Representations overlap except in Cue Conflict}
+  \label{fig:tsne-resnet}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figures/tsne_vit_b_16.png}
+  \caption{Vit-B t-SNE: Representations overlap except in Cue Conflict}
+  \label{fig:tsne-vit}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figures/tsne_clip.png}
+  \caption{CLIP t-SNE: Representations overlap except in Cue Conflict and Patch Shuffle}
+  \label{fig:tsne-clip}
+\end{figure}
 
 \section{References}
 \label{sec:references}

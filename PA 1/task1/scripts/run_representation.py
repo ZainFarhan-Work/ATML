@@ -30,6 +30,7 @@ from models.backbones import MODEL_NAMES, extract_features, load_backbone  # noq
 
 TASK1 = Path(__file__).resolve().parents[1]
 RESULTS_DIR = TASK1 / "results"
+CACHE_DIR = TASK1 / "cache"
 BATCH_SIZE = 128
 SEED = 6304
 TRANSLATION = 32
@@ -184,6 +185,11 @@ def main():
         )
         print(f"  t-SNE on {len(stacked)} points ...")
         points = fit_projection(stacked, SEED)
+        # Saved so the figure can be re-laid-out without refitting t-SNE.
+        np.savez(
+            CACHE_DIR / f"tsne_{name}.npz",
+            points=points, condition=condition, labels=labels,
+        )
         plot_panels(
             points, condition, labels, CLASSES,
             f"{name}: t-SNE (perplexity 30, cosine metric, seed {SEED})",
