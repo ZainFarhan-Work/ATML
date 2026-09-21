@@ -1,0 +1,235 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2026
+
+% The authors should use one of these tracks.
+% Before accepting by the NeurIPS conference, select one of the options below.
+% 0. "default" for submission
+\usepackage{neurips_2026}
+% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
+% 1. "main" option is used for the Main Track
+%  \usepackage[main]{neurips_2026}
+% 2. "position" option is used for the Position Paper Track
+%  \usepackage[position]{neurips_2026}
+% 3. "eandd" option is used for the Evaluations & Datasets Track
+ % \usepackage[eandd]{neurips_2026}
+% 4. "creativeai" option is used for the Creative AI Track
+%  \usepackage[creativeai]{neurips_2026}
+% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
+ % \usepackage[sglblindworkshop]{neurips_2026}
+% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop]{neurips_2026}
+% 7. "education" option is used for the Education Track
+%  \usepackage[education]{neurips_2026}
+
+
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2026}
+% 2. Position Paper Track
+%  \usepackage[position, final]{neurips_2026}
+% 3. Evaluations & Datasets Track
+ % \usepackage[eandd, final]{neurips_2026}
+% 4. Creative AI Track
+%  \usepackage[creativeai, final]{neurips_2026}
+% 5. Workshop with single-blind reviewing
+%  \usepackage[sglblindworkshop, final]{neurips_2026}
+% 6. Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop, final]{neurips_2026}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
+% \workshoptitle{WORKSHOP TITLE}
+% 7. Education Track
+% \usepackage[education, final]{neurips_2026}
+
+% "preprint" option is used for arXiv or other preprint submissions
+ % \usepackage[preprint]{neurips_2026}
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2026}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{float}
+
+\title{Feature Learning in Supervised AI Models}
+
+
+\author{
+  Zain Farhan \\
+  Lahore University of Management Sciences (LUMS) \\
+  \texttt{Department of Computer Sciences} \\
+}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\begin{abstract}
+  In this research paper we will learn and investigate how various supervised learning models learn features. We will do this
+  through four tasks. In task 1 we will see how strong inductive bias is in models and how their architecture can effect how they
+  learn features (i.e. whether they learn shape or texture or some other attribute). In task 2 we will observe how this effects Domain
+  Generalization. The idea being that we want the model to learn identifying features about the objects (like their shape) instead of Domain
+  Specific features (like if the dataset had grass behind every cat and the model associated the grass with the cat). If the model can do this, it should
+  perform well even on Domain Shifts. We extend this idea in task 3 with Domain Generalization and completely unknown target domains. Finally, in task 4
+  we tackle the open set problem, to see if we can identify casual features even on unknown classes, and separate them as they come.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+We will do various experiments in this research paper to study how different AI models learn features, and the consequence of their architectures.
+This is done in four parts.
+
+First, we will see the study the influence of Inductive Biases and Feature Representations, our goal here is to see the influence of model architecture.
+By comparing the metrics of four well known and standard models (ResNet-50, ViT-B, CLIP). We will first perform a baseline metric on all of them, and then
+perform 5 different experiments. Colour Bias: We perform two different types, grey scale, and hue shift, and see how well the models perform.
+Shape vs Texture (cue-conflict): We apply the texture of one object to another, to see if models are using texture or shape for classification and which is more important.
+Translation: We shift the images, left, right, up, or down and see if the model can still classify. Lastly, we shuffle the patches of the images
+to see how the global structure effects the models.
+
+Our points of interest are, what cue-conflict and colour reveal about reliance on shape, texture, and colour, and what coverage can tell us about shape bias.
+How the models respond when spatial structure is altered and what that tells us about the importance of locality, global organisation, and positional sensitivity.
+To what extent prediction-level changes agree with changes in feature representations, and which observed difference can reasonably be attributed
+to architecture as opposed to pretraining data, supervision, augmentation or model capacity.
+
+\section{Experimental Setup/Methods}
+\label{sec:setup}
+
+\subsection{Inductive Biases and Feature Representations}
+
+\textbf{Models:}
+\begin{itemize}
+  \item \texttt{torchvision ResNet-50 with ResNet50\_Weights.IMAGENET1K\_V2;}
+  \item \texttt{torchvision ViT-B/16 with ViT\_B\_16\_Weights.IMAGENET1K\_V1;}
+  \item \texttt{OpenCLIP ViT-B-32 with pretrained='openai'.}
+\end{itemize}
+
+\textbf{Dataset:} STL-10
+
+\textbf{Configuration:}
+\begin{itemize}
+  \item Seed: 6304
+  \item Optimizer: AdamW
+  \item Learning Rate: $10^{-3}$
+  \item Weight Decay: $10^{-4}$
+\end{itemize}
+
+For the Shape vs Texture we used AdaIN implementation, which follows Huang \&
+Belongie (2017). the encoder/decoder architecture and the pretrained weights come from the public reimplementation
+naoto0804/pytorch-AdaIN, weights mirrored at BhupatiNadar/adain-style-transfer-models
+on HuggingFace.
+
+
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Inductive Biases and Feature Representations}
+
+We first take some basic measurements as a baseline, we freeze the three classifier heads and measure top-1 accuracy,
+macro-F1, and mean maximum confidence. We also do this for zero shot CLIP, we measure confidence from the softmax over scaled
+class similarities.
+
+\begin{table}[H]
+  \caption{Clean Baseline - Shows all models performing very well on the dataset.}
+  \label{tab:clean-baseline}
+  \centering
+  \begin{tabular}{lccc}
+    \toprule
+    System & Top-1 (\%) & Macro-F1 (\%) & Mean max conf. \\
+    \midrule
+    ResNet-50 + linear head   & 96.4 & 96.39 & 0.91 \\
+    ViT-B/16 + linear head    & 97.2 & 97.21 & 0.97 \\
+    CLIP ViT-B-32 + linear head & 96.6 & 96.60 & 0.27 \\
+    CLIP ViT-B-32 zero-shot   & 97.0 & 97.01 & 0.94 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+All the models perform well as a baseline, this maybe a limitation of the STL-10 dataset, as its distinct classes would be easier to classify.
+This can be a limitation as differences in experiments would more visibly show a decrease rather than an increase.
+It should also be noted that the CLIP Max Mean is low because it uses Cosine similarity in training, and the L-2 norm forces the magnitude to be 1.
+So when attached with a linear head and no compensation, the value comes off as low. It does not mean it is lower in confidence than other models,
+just that rows can't be compared the magnitude lower, not because it is less confident than others
+
+\subsubsection{Color Bias}
+
+We did two experiments with colour, the first we changed the images to greyscale measured the same metrics and got the following results:
+
+\begin{table}[H]
+  \caption{Greyscale: Minimal change in Top-1 Accuracy}
+  \label{tab:grayscale}
+  \centering
+  \begin{tabular}{lccccc}
+    \toprule
+    System & Top-1 & Macro-F1 & $\Delta$ Top-1 & Consistency & Conf. \\
+    \midrule
+    ResNet-50 + linear head     & 94.6 & 94.61 & $-1.8$ & 95.8 & 0.91 \\
+    ViT-B/16 + linear head      & 95.4 & 95.41 & $-1.8$ & 98.0 & 0.96 \\
+    CLIP ViT-B-32 + linear head & 93.8 & 93.78 & $-2.8$ & 93.0 & 0.25 \\
+    CLIP ViT-B-32 zero-shot     & 93.0 & 92.97 & $-4.0$ & 94.0 & 0.93 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+We can see that making the image greyscale results in a slight decrease in accuracy throughout. Given that we have removed information from the image
+this is to be expected. A more interesting observation is that there was no significant difference between Convolution and Vision Transformers, 
+though consistency is slightly higher for the Vision Transformer. CLIP had the most sever impact. Both of the readings are lower than either
+ResNet or ViT-B, and further zero-shot is the lowest. One plausible explanation for this is that the text embeddings had an influence on how
+accurately important colour is during pre training. For example if a prompt were to be "A picture of a Brown Dog." that would influenced both the visual
+encoder and the text encoder. It would also explain why zero-shot performed even worse. This though is not conclusive, and would be hard to confirm.
+
+The second experiment was with a Hue Shift of $40^{}$ deg. A limitation of this is that a hue shift will only have a good effect on well
+saturated images. On less saturated images the change is very minimal, making the result less significant.
+
+\begin{table}[H]
+  \caption{Hue Rotation of 40: Minimal change in accuracy}
+  \label{tab:hue40}
+  \centering
+  \begin{tabular}{lccccc}
+    \toprule
+    System & Top-1 & Macro-F1 & $\Delta$ Top-1 & Consistency & Conf. \\
+    \midrule
+    ResNet-50 + linear head     & 94.4 & 94.42 & $-2.0$ & 95.2 & 0.90 \\
+    ViT-B/16 + linear head      & 95.8 & 95.79 & $-1.4$ & 98.2 & 0.96 \\
+    CLIP ViT-B-32 + linear head & 94.8 & 94.78 & $-1.8$ & 95.8 & 0.26 \\
+    CLIP ViT-B-32 zero-shot     & 95.2 & 95.18 & $-1.8$ & 95.6 & 0.93 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Again we see a minimal change in accuracy, this time they are much closer to each other. No claims can be made as the difference is small enough that it can
+be considered noise. Again though, we will find that ViT is just slightly more consistent than other models. It is also of note that unlike greyscale, CLIP is
+much more in line with other models. One explanation for this is that in greyscale, we totally lost colour information, however with a rotation, the relationship
+between the colour of the objects is still the same, it has just been rotated. Hence, the loss is less with CLIP now.
+
+\subsubsection{Shape vs. Texture}
+
+For this comparison alpha strength of 1 was required, as lower values did not transfer texture well enough. We get the following results:
+
+
+
+
+\subsection{Cross-Task Discussion}
+
+\section{Conclusions}
+\label{sec:conclusion}
+
+\section{References}
+\label{sec:references}
+
+
+\end{document}

@@ -1,0 +1,9 @@
+system,intervention,top1,macro_f1,mean_max_conf,delta_top1,consistency
+resnet50 + linear head,clean,96.4,96.39,0.91,0.0,100.0
+resnet50 + linear head,patch_shuffle,89.0,89.06,0.87,-7.4,90.4
+vit_b_16 + linear head,clean,97.2,97.21,0.97,0.0,100.0
+vit_b_16 + linear head,patch_shuffle,90.4,90.52,0.89,-6.8,92.6
+clip + linear head,clean,96.6,96.6,0.27,0.0,100.0
+clip + linear head,patch_shuffle,84.4,84.18,0.2,-12.2,84.6
+clip zero-shot,clean,97.0,97.01,0.94,0.0,100.0
+clip zero-shot,patch_shuffle,84.4,84.2,0.82,-12.6,84.2

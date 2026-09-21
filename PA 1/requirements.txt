@@ -1,0 +1,49 @@
+# ATML PA1 — Beyond IID / Closed-Set Learning
+# Python 3.14 · Linux · CUDA (RTX 4050, sm_89)
+#
+#   python3 -m venv ../.venv
+#   ../.venv/bin/python -m pip install -r requirements.txt
+#
+# Exact resolved versions used for the reported results: requirements.lock.txt
+
+# --- Core deep learning (all four tasks) ---
+torch
+torchvision
+
+# --- Task 1: OpenCLIP ViT-B-32, pretrained='openai' ---
+open_clip_torch
+ftfy                  # text-prompt cleanup required by CLIP tokenizer
+regex                 # CLIP tokenizer dependency
+
+# --- Metrics, splits, diagnostics -------------------------------------------
+# macro-F1, stratified splits (seed 6304), logistic-regression domain
+# separability (T2/T3), Mahalanobis covariance (T4), t-SNE (T1)
+scikit-learn
+scipy
+numpy
+pandas                # results tables -> CSV for the report
+
+# --- Task 1 representation visualisation (t-SNE via sklearn, or UMAP) ---
+umap-learn            # pulls numba + pynndescent; t-SNE alone would suffice
+
+# --- Images / interventions (grayscale, hue, translation, patch shuffle, AdaIN) ---
+pillow
+opencv-python-headless
+imageio
+
+# --- Plotting (translation curves, loss curves, ROC / score histograms) ---
+matplotlib
+seaborn
+
+# --- Configs & reproducibility ---
+pyyaml                # configs/*.yaml
+tqdm
+
+# --- Datasets ---
+# STL-10, CIFAR-10/100, Oxford-IIIT Pets come from torchvision.datasets.
+# PACS is not in torchvision — download manually (see README) or with gdown.
+gdown
+
+# --- Dev convenience ---
+ipykernel             # run notebooks against this venv
+tensorboard           # optional loss-curve logging

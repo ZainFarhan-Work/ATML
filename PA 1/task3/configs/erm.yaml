@@ -1,0 +1,4 @@
+# ERM is not trained here: Task 2's source_only checkpoint is the baseline.
+name: erm
+method: erm
+reuse_checkpoint: ../task2/cache/source_only.pt

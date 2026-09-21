@@ -1,0 +1,8 @@
+# Shared protocol; method configs override only what they change.
+seed: 6304
+max_epochs: 30
+patience: 5
+learning_rate: 1.0e-4
+weight_decay: 1.0e-4
+per_source_batch: 8
+target_batch: 24

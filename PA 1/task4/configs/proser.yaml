@@ -1,0 +1,6 @@
+name: proser
+method: proser
+epochs: 50
+learning_rate: 0.001
+randaugment: false
+init_from: vanilla   # fine-tuned from the selected Vanilla checkpoint

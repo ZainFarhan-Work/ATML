@@ -1,0 +1,5 @@
+name: vanilla
+method: vanilla
+epochs: 100
+learning_rate: 0.1
+randaugment: false

@@ -1,0 +1,48 @@
+# ATML course root — shared across PAs.
+# ---
+/Understanding
+ai*.md
+# The shared virtualenv lives here and must never be committed.
+.venv/
+venv/
+
+__pycache__/
+*.py[cod]
+
+# Shared dataset cache (see ATML/datasets — download once, reuse per PA)
+datasets/
+data/
+
+# Weights, caches, logs
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+checkpoints/
+cache/
+wandb/
+*.log
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# LaTeX build artifacts (keep .tex, .sty, .pdf)
+*.aux
+*.fdb_latexmk
+*.fls
+*.out
+*.synctex.gz
+*.synctex(busy)
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.nav
+*.snm
+*.xdv

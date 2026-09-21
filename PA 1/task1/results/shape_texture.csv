@@ -1,0 +1,9 @@
+set,system,n,shape,texture,other,shape_bias,coverage
+balanced,resnet50 + linear head,220,54,52,114,50.94,48.18
+balanced,vit_b_16 + linear head,220,99,14,107,87.61,51.36
+balanced,clip + linear head,220,116,12,92,90.62,58.18
+balanced,clip zero-shot,220,117,7,96,94.35,56.36
+all_accepted,resnet50 + linear head,286,78,57,151,57.78,47.2
+all_accepted,vit_b_16 + linear head,286,143,16,127,89.94,55.59
+all_accepted,clip + linear head,286,155,14,117,91.72,59.09
+all_accepted,clip zero-shot,286,160,7,119,95.81,58.39

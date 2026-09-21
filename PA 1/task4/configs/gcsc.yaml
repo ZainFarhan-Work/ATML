@@ -1,0 +1,5 @@
+name: gcsc
+method: gcsc
+epochs: 100
+learning_rate: 0.1
+randaugment: true   # RandAugment(num_ops=2, magnitude=9): the only change

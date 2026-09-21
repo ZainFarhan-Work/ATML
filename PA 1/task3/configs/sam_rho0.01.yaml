@@ -1,0 +1,3 @@
+name: sam_rho0.01
+method: sam
+rho: 0.01

@@ -1,0 +1,69 @@
+system,displacement,direction,top1,consistency
+resnet50 + linear head,0,none,96.4,100.0
+resnet50 + linear head,8,right,96.0,98.8
+resnet50 + linear head,8,left,96.4,98.0
+resnet50 + linear head,8,down,95.8,98.0
+resnet50 + linear head,8,up,96.2,97.8
+resnet50 + linear head,16,right,95.8,98.8
+resnet50 + linear head,16,left,96.4,97.8
+resnet50 + linear head,16,down,96.4,99.0
+resnet50 + linear head,16,up,96.8,98.8
+resnet50 + linear head,32,right,95.2,98.0
+resnet50 + linear head,32,left,94.8,97.2
+resnet50 + linear head,32,down,95.4,97.4
+resnet50 + linear head,32,up,96.2,98.0
+resnet50 + linear head,0,mean,96.4,100.0
+resnet50 + linear head,8,mean,96.1,98.15
+resnet50 + linear head,16,mean,96.35,98.6
+resnet50 + linear head,32,mean,95.4,97.65
+vit_b_16 + linear head,0,none,97.2,100.0
+vit_b_16 + linear head,8,right,97.0,98.6
+vit_b_16 + linear head,8,left,96.6,97.8
+vit_b_16 + linear head,8,down,97.6,98.4
+vit_b_16 + linear head,8,up,97.4,98.6
+vit_b_16 + linear head,16,right,97.0,99.0
+vit_b_16 + linear head,16,left,96.8,99.0
+vit_b_16 + linear head,16,down,97.0,98.8
+vit_b_16 + linear head,16,up,97.2,100.0
+vit_b_16 + linear head,32,right,96.0,98.0
+vit_b_16 + linear head,32,left,95.8,98.2
+vit_b_16 + linear head,32,down,96.8,98.6
+vit_b_16 + linear head,32,up,96.8,99.6
+vit_b_16 + linear head,0,mean,97.2,100.0
+vit_b_16 + linear head,8,mean,97.15,98.35
+vit_b_16 + linear head,16,mean,97.0,99.2
+vit_b_16 + linear head,32,mean,96.35,98.6
+clip + linear head,0,none,96.6,100.0
+clip + linear head,8,right,95.4,97.2
+clip + linear head,8,left,96.4,97.0
+clip + linear head,8,down,96.6,98.4
+clip + linear head,8,up,96.6,97.0
+clip + linear head,16,right,96.4,96.4
+clip + linear head,16,left,96.2,96.4
+clip + linear head,16,down,96.2,97.2
+clip + linear head,16,up,96.2,97.2
+clip + linear head,32,right,96.0,97.0
+clip + linear head,32,left,95.8,96.8
+clip + linear head,32,down,96.6,97.0
+clip + linear head,32,up,94.4,96.4
+clip + linear head,0,mean,96.6,100.0
+clip + linear head,8,mean,96.25,97.4
+clip + linear head,16,mean,96.25,96.8
+clip + linear head,32,mean,95.7,96.8
+clip zero-shot,0,none,97.0,100.0
+clip zero-shot,8,right,95.8,97.2
+clip zero-shot,8,left,96.2,96.8
+clip zero-shot,8,down,97.8,97.6
+clip zero-shot,8,up,96.6,97.2
+clip zero-shot,16,right,96.4,97.8
+clip zero-shot,16,left,94.6,96.0
+clip zero-shot,16,down,96.6,96.6
+clip zero-shot,16,up,96.2,96.4
+clip zero-shot,32,right,94.6,96.0
+clip zero-shot,32,left,94.6,97.2
+clip zero-shot,32,down,95.0,96.8
+clip zero-shot,32,up,94.8,96.6
+clip zero-shot,0,mean,97.0,100.0
+clip zero-shot,8,mean,96.6,97.2
+clip zero-shot,16,mean,95.95,96.7
+clip zero-shot,32,mean,94.75,96.65

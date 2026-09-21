@@ -1,0 +1,140 @@
+# ---------------------------------------------------------------------------
+# ATML PA1 — .gitignore
+# Rule of thumb: never commit datasets, environments, caches or big weights.
+# DO commit code, configs, split indices, and small CSV/JSON result files.
+# ---------------------------------------------------------------------------
+
+# --- Python environments (venv lives at ../.venv, but just in case) ---
+.venv/
+venv/
+env/
+ENV/
+.python-version
+pip-wheel-metadata/
+
+# --- Python bytecode / build junk ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- Datasets & raw downloads (STL-10, Oxford-IIIT Pets, PACS, CIFAR-10/100) ---
+data/
+datasets/
+*/data/
+downloads/
+stl10_binary/
+stl10_binary.tar.gz
+oxford-iiit-pet/
+images.tar.gz
+annotations.tar.gz
+PACS/
+pacs/
+kfold/
+cifar-10-batches-py/
+cifar-100-python/
+cifar-10-python.tar.gz
+cifar-100-python.tar.gz
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+
+# --- Model weights / checkpoints (regenerable, and huge) ---
+checkpoints/
+ckpt/
+ckpts/
+runs/
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.bin
+*.onnx
+*.h5
+
+# --- Cached features / logits / embeddings (task1 reps, task4 cache/) ---
+cache/
+.cache/
+features/
+embeddings/
+*.npy
+*.npz
+*.pkl
+*.pickle
+*.pth.tar
+
+# --- Generated intervention images (cue conflicts, shuffles, translations) ---
+# Keep the *generator scripts* + the saved image IDs, not the pixels.
+task1/data/generated/
+task1/data/cue_conflicts/
+generated_images/
+*_conflicts/
+
+# --- Experiment tracking / logs ---
+wandb/
+mlruns/
+lightning_logs/
+tb_logs/
+tensorboard/
+events.out.tfevents.*
+*.log
+logs/
+slurm-*.out
+nohup.out
+
+# --- Torch / HF caches if ever pointed inside the repo ---
+.torch/
+torch_hub/
+huggingface/
+open_clip_cache/
+
+# --- Notebooks ---
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# --- LaTeX build artifacts for the NeurIPS report (keep the .tex and final PDF) ---
+report/*.aux
+report/*.log
+report/*.out
+report/*.bbl
+report/*.blg
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz
+report/*.toc
+report/*.nav
+report/*.snm
+report/*.vrb
+
+# --- Editor / OS ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- Secrets ---
+.env
+*.pem
+secrets.yaml
+
+# ---------------------------------------------------------------------------
+# Force-keep things the grader needs even if a rule above would catch them
+# ---------------------------------------------------------------------------
+!.gitignore
+!requirements.txt
+!**/configs/**
+!**/splits/**
+!shared/splits/*.json
+!results/**/*.json
+!results/**/*.csv
+!results/**/*.md
+!report/figures/**

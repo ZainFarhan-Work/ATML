@@ -1,0 +1,5 @@
+model,top1,macro_f1,mean_max_conf
+resnet50 + linear head,96.4,96.39,0.91
+vit_b_16 + linear head,97.2,97.21,0.97
+clip + linear head,96.6,96.6,0.27
+clip zero-shot,97.0,97.01,0.94
