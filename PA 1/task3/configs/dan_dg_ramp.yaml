@@ -1,0 +1,5 @@
+name: dan_dg_ramp
+method: dan_dg
+lambda_dg: 1.0
+# DEVIATION: lambda ramps 0 -> 1 with the DANN schedule instead of starting at 1.
+lambda_schedule: ramp

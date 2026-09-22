@@ -1,0 +1,5 @@
+name: dan_dg_bwgrad
+method: dan_dg
+lambda_dg: 1.0
+# Gradient flows through the median bandwidth; lambda stays the manual's constant 1.
+detach_bandwidth: false

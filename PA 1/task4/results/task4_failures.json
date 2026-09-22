@@ -1,0 +1,23 @@
+{
+ "vanilla_MSP_near": {
+  "bus -> truck": 67,
+  "pickup_truck -> automobile": 64,
+  "tractor -> truck": 59,
+  "wolf -> cat": 42,
+  "wolf -> dog": 35
+ },
+ "vanilla_MSP_far": {
+  "wardrobe -> cat": 41,
+  "sunflower -> bird": 28,
+  "mushroom -> bird": 23,
+  "chair -> airplane": 21,
+  "wardrobe -> truck": 19
+ },
+ "proser_placeholder_near": {
+  "pickup_truck -> automobile": 75,
+  "bus -> truck": 65,
+  "tractor -> truck": 55,
+  "wolf -> cat": 45,
+  "motorcycle -> automobile": 39
+ }
+}

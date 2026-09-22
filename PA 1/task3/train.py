@@ -18,7 +18,7 @@ import torch  # noqa: E402
 import torch.nn.functional as F  # noqa: E402
 import yaml  # noqa: E402
 
-from methods.dan_dg import pairwise_mmd  # noqa: E402
+from methods.dan_dg import lambda_at, pairwise_mmd  # noqa: E402
 from methods.sam import ascend, descend  # noqa: E402
 from shared.pacs import SOURCE_DOMAINS  # noqa: E402
 from shared.pacs_protocol import (  # noqa: E402
@@ -53,8 +53,12 @@ def source_batch(source_iters):
     return per_domain
 
 
-def train(config, table, splits):
-    """Train one Task 3 method under the Task 2 protocol, minus any target access."""
+def train(config, table, splits, probe_steps=0):
+    """Train one Task 3 method under the Task 2 protocol, minus any target access.
+
+    probe_steps > 0 runs only that many updates, prints collapse diagnostics, and
+    writes nothing - a cheap check before committing to a full run.
+    """
     method = config["method"]
     torch.manual_seed(SEED)
 
@@ -71,6 +75,9 @@ def train(config, table, splits):
 
     source_iters = {d: iter(infinite(loader)) for d, loader in train_loaders.items()}
     per_epoch = steps_per_epoch(train_loaders)
+    total_steps = per_epoch * MAX_EPOCHS
+    step = 0
+    detach_bandwidth = config.get("detach_bandwidth", True)
 
     history, best = [], {"mean_f1": -1.0, "epoch": -1, "state": None}
     epochs_without_gain = 0
@@ -78,21 +85,30 @@ def train(config, table, splits):
     for epoch in range(MAX_EPOCHS):
         train_mode(features)
         train_mode(classifier)
-        sums = {"cls": 0.0, "align": 0.0, "grad_norm": 0.0}
+        sums = {"cls": 0.0, "align": 0.0, "grad_norm": 0.0, "feat_std": 0.0, "lambda": 0.0}
         started = time.time()
 
         for _ in range(per_epoch):
             batch = source_batch(source_iters)
+            weight = lambda_at(config, step / total_steps) if method == "dan_dg" else 0.0
+            spread = {}
 
             def forward():
                 """Classification over pooled sources, plus DAN-DG's pairwise MMD."""
                 domain_features = [features(images) for images, _ in batch]
-                logits = classifier(torch.cat(domain_features))
+                pooled = torch.cat(domain_features)
+                # Mean per-dimension std across the batch: 0 means every image
+                # maps to the same vector, i.e. the collapse seen at lambda = 1.
+                spread["std"] = pooled.detach().std(dim=0).mean().item()
+                spread["norm"] = pooled.detach().norm(dim=1).mean().item()
+                logits = classifier(pooled)
                 labels = torch.cat([label for _, label in batch])
                 classification = F.cross_entropy(logits, labels)
                 alignment = torch.zeros((), device=device())
                 if method == "dan_dg":
-                    alignment = config["lambda_dg"] * pairwise_mmd(domain_features)
+                    alignment = weight * pairwise_mmd(
+                        domain_features, detach_bandwidth=detach_bandwidth
+                    )
                 return classification, alignment
 
             classification, alignment = forward()
@@ -116,6 +132,22 @@ def train(config, table, splits):
             sums["cls"] += classification.item()
             sums["align"] += float(alignment)
             sums["grad_norm"] += grad_norm
+            sums["feat_std"] += spread["std"]
+            sums["lambda"] += weight
+            step += 1
+
+            if probe_steps:
+                if step % 25 == 0 or step == 1:
+                    print(f"  probe step {step:>4}: lambda {weight:.3f} "
+                          f"cls {classification.item():.3f} align {float(alignment):.4f} "
+                          f"|f| {spread['norm']:.2f} feat_std {spread['std']:.4f}", flush=True)
+                if step >= probe_steps:
+                    healthy = spread["std"] > 0.1 and classification.item() < 1.5
+                    print(f"  probe verdict: {'HEALTHY' if healthy else 'COLLAPSING'} "
+                          f"(feat_std {spread['std']:.4f}, cls {classification.item():.3f}; "
+                          f"collapse looks like feat_std -> 0 and cls -> 1.946 = ln 7)",
+                          flush=True)
+                    return None
 
         per_domain, mean_f1, mean_accuracy = source_validation(
             features, classifier, val_loaders
@@ -126,6 +158,8 @@ def train(config, table, splits):
             "cls_loss": round(sums["cls"] / per_epoch, 4),
             "align_loss": round(sums["align"] / per_epoch, 4),
             "grad_norm": round(sums["grad_norm"] / per_epoch, 4),
+            "feat_std": round(sums["feat_std"] / per_epoch, 4),
+            "lambda": round(sums["lambda"] / per_epoch, 4),
             "mean_source_val_f1": round(mean_f1, 2),
             "mean_source_val_acc": round(mean_accuracy, 2),
             "worst_source_val_f1": round(worst_f1, 2),
@@ -134,7 +168,8 @@ def train(config, table, splits):
         }
         history.append(row)
         print(f"  {config['name']} epoch {row['epoch']:>2}: cls {row['cls_loss']:.3f} "
-              f"align {row['align_loss']:.3f} val_f1 {row['mean_source_val_f1']:.2f} "
+              f"align {row['align_loss']:.3f} lambda {row['lambda']:.3f} "
+              f"feat_std {row['feat_std']:.4f} val_f1 {row['mean_source_val_f1']:.2f} "
               f"worst {row['worst_source_val_f1']:.2f} ({row['seconds']}s)", flush=True)
 
         if mean_f1 > best["mean_f1"]:
@@ -169,6 +204,10 @@ def load_config(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("configs", nargs="+")
+    parser.add_argument(
+        "--probe", type=int, default=0, metavar="STEPS",
+        help="run only STEPS updates, print collapse diagnostics, write nothing",
+    )
     args = parser.parse_args()
 
     table = load_table()
@@ -176,7 +215,7 @@ def main():
     for path in args.configs:
         config = load_config(path)
         print(f"[{config['name']}]", flush=True)
-        train(config, table, splits)
+        train(config, table, splits, probe_steps=args.probe)
 
 
 if __name__ == "__main__":

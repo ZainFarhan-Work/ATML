@@ -375,6 +375,239 @@ animals and objects at least, it is confused within animal classes.
 
 \subsubsection{DAN - MMD Alignment}
 
+\begin{table}[H]
+  \caption{DA with MMD - Slight improvement over Source Only}
+  \label{tab:dan}
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    & Source-only & DAN ($\lambda_{\mathrm{MMD}}=1$) \\
+    \midrule
+    Photo val acc (\%)          & 97.30 & 95.80 \\
+    Art Painting val acc (\%)   & 91.71 & 93.41 \\
+    Cartoon val acc (\%)        & 95.74 & 95.95 \\
+    \midrule
+    Mean source acc (\%)        & 94.91 & 95.05 \\
+    Mean source macro-F1 (\%)   & 94.85 & 94.93 \\
+    \midrule
+    Sketch acc (\%)             & 61.59 & 64.44 \\
+    Sketch macro-F1 (\%)        & 63.09 & 60.55 \\
+    $\Delta$ Sketch acc         & ---   & $+2.85$ \\
+    Domain separability (\%)    & 100.00 & 81.87 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+If we observe the general by class results for MMD, we see a slight but still meaningful improvement over the sketch accuracy.
+Though the sketch F1 - macro decreases by a bit.
+
+\begin{table}[H]
+  \caption{MMD by Class - Good by class improvement}
+  \label{tab:dan-per-class}
+  \centering
+  \begin{tabular}{lccc}
+    \toprule
+    Class & Source-only (\%) & DAN (\%) & $\Delta$ \\
+    \midrule
+    Dog      & 21.11 &  47.93 & $+26.82$ \\
+    Elephant & 94.73 &  75.54 & $-19.19$ \\
+    Giraffe  & 77.95 &  61.62 & $-16.33$ \\
+    Guitar   & 70.07 &  74.18 & $+4.11$ \\
+    Horse    & 46.32 &  57.60 & $+11.28$ \\
+    House    & 83.75 & 100.00 & $+16.25$ \\
+    Person   & 61.25 &  86.25 & $+25.00$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+We see all classes improve in accuracy, except for giraffe and elephant, but given that in source only most of the errors
+in the dog class went to giraffe and elephant, it is likely they were over represented in the original model in the first place.
+
+\subsubsection{DANN - Adversarial Alignment}
+
+We now use adversarial learning to see how well it performs. And get the following results:
+
+\begin{table}[H]
+  \caption{DANN - The performances worsened}
+  \label{tab:dann}
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    & Source-only & DANN \\
+    \midrule
+    Photo val acc (\%)          & 97.30 & 95.80 \\
+    Art Painting val acc (\%)   & 91.71 & 92.93 \\
+    Cartoon val acc (\%)        & 95.74 & 93.60 \\
+    \midrule
+    Mean source acc (\%)        & 94.91 & 94.11 \\
+    Mean source macro-F1 (\%)   & 94.85 & 94.03 \\
+    \midrule
+    Sketch acc (\%)             & 61.59 & 55.97 \\
+    Sketch macro-F1 (\%)        & 63.09 & 58.23 \\
+    $\Delta$ Sketch acc         & ---   & $-5.62$ \\
+    Domain separability (\%)    & 100.00 & 99.31 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Interestingly not only is the performance on the sketch pictures worse than source, but the the predictions on source only is also worse.
+At first this might make it look like DANN didn't work, but after further investigation we find this:
+
+\begin{table}[t]
+  \caption{Tracking Per Epoch - Loss was decreasing while Domain accuracy was going to 0.5}
+  \label{tab:dann-training}
+  \centering
+  \begin{tabular}{ccccc}
+    \toprule
+    Epoch & Cls.\ loss & Domain loss & Domain acc. & Mean source F1 (\%) \\
+    \midrule
+    1 & 0.533 & 0.384 & 0.817 & 91.37 \\
+    2 & 0.234 & 0.597 & 0.673 & 89.19 \\
+    3 & 0.159 & 0.669 & 0.597 & \textbf{94.03} \\
+    4 & 0.261 & 0.742 & 0.542 & 84.62 \\
+    5 & 0.176 & 0.686 & 0.551 & 92.80 \\
+    6 & 0.084 & 0.681 & 0.541 & 92.37 \\
+    7 & 0.070 & 0.694 & 0.502 & 93.92 \\
+    8 & 0.081 & 0.694 & 0.501 & 93.90 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize Selected epoch in bold. Chance domain accuracy is 0.5 and $\ln 2 = 0.693$.
+\end{table}
+
+The Loss was indeed decreasing, and the Domain Accuracy was going to 0.5., what this means is that even if we fool the discriminator.
+that does not necessarily mean an increase in performance. Perhaps the backbone managed to fool the discriminator before the discriminator
+got good enough to warrant an improvement. An increase in learning later or even just running more Epochs could improve metrics to match MMD or beyond. 
+
+\subsubsection{CDAN - Class-Conditional Adversarial Alignment}
+
+To improve the scores from before we use the values of the prediction as well, we do a cross product with the latent and feed that to the discriminator.
+
+\begin{table}[t]
+  \caption{CDAN: Significant Improvement from before}
+  \label{tab:cdan}
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    & Source-only & CDAN \\
+    \midrule
+    Photo val acc (\%)          & 97.30 & 97.30 \\
+    Art Painting val acc (\%)   & 91.71 & 91.46 \\
+    Cartoon val acc (\%)        & 95.74 & 95.52 \\
+    \midrule
+    Mean source acc (\%)        & 94.91 & 94.76 \\
+    Mean source macro-F1 (\%)   & 94.85 & 94.66 \\
+    \midrule
+    Sketch acc (\%)             & 61.59 & 74.65 \\
+    Sketch macro-F1 (\%)        & 63.09 & 73.85 \\
+    $\Delta$ Sketch acc         & ---   & $+13.06$ \\
+    Domain separability (\%)    & 100.00 & 99.86 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The performance on the source only metric stays the same, but the accuracy on sketch images received a significant improvement.
+Meaning that even soft information about the final prediction was very helpful to the discriminator. Improving its performance which
+improved the backbone to more aggressively compete with it. However, it was not lower domain separability that did this, as domain separability
+essentially remained the same. It can be speculated that domain information is important as that helps the model to classify them.
+
+\subsubsection{Common Evaluation and Alignment Diagnostic}
+
+We compare the results overall:
+
+\begin{table}[H]
+  \caption{Diagnostic - Separability might not be the deciding factor}
+  \label{tab:t2-diagnostic}
+  \centering
+  \footnotesize
+  \begin{tabular}{lccccccccc}
+    \toprule
+    & \multicolumn{3}{c}{Source val.\ acc.\ (\%)} & \multicolumn{2}{c}{Mean source (\%)} & \multicolumn{2}{c}{Sketch (\%)} & & \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+    Method & Photo & Art & Cartoon & Acc. & F1 & Acc. & F1 & $\Delta$ Acc. & Sep.\ (\%) \\
+    \midrule
+    Source-only & 97.30 & 91.71 & 95.74 & 94.91 & 94.85 & 61.59 & 63.09 & ---       & 100.00 \\
+    DAN         & 95.80 & 93.41 & 95.95 & 95.05 & 94.93 & 64.44 & 60.55 & $+2.85$   &  81.87 \\
+    DANN        & 95.80 & 92.93 & 93.60 & 94.11 & 94.03 & 55.97 & 58.23 & $-5.62$   &  99.31 \\
+    CDAN        & 97.30 & 91.46 & 95.52 & 94.76 & 94.66 & 74.65 & 73.85 & $+13.06$  &  99.86 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize Sep.\ = domain separability: held-out accuracy of a logistic-regression probe
+  ($C=1$, balanced, 70/30 split, seed 6304) trained to tell source from target from the frozen
+  features. Chance is 50\%. Target labels were used only at this stage.
+\end{table}
+
+We would assume that bringing the domains closer and making them indistinguishable would be key, as the overlapping elements between the target domain and
+source domains would come into play. However aside from MMD which tries to directly to do this with the Loss function, a freshly trained logistical regressor can
+still separate the classes. And our best performance from CDAN barely shows any change, implying it might not be the most key factor.
+
+\begin{table}[H]
+  \caption{Per Class Comparison: Four classes share a trend}
+  \label{tab:t2-per-class}
+  \centering
+  \small
+  \begin{tabular}{lccccccc}
+    \toprule
+    & \multicolumn{4}{c}{Sketch accuracy (\%)} & \multicolumn{3}{c}{$\Delta$ vs Source-only} \\
+    \cmidrule(lr){2-5} \cmidrule(lr){6-8}
+    Class & Source-only & DAN & DANN & CDAN & DAN & DANN & CDAN \\
+    \midrule
+    Dog      & 21.11 &  47.93 &  42.10 &  64.25 & $+26.82$ & $+20.99$ & $+43.14$ \\
+    Elephant & 94.73 &  75.54 &  35.00 &  80.54 & $-19.19$ & $-59.73$ & $-14.19$ \\
+    Giraffe  & 77.95 &  61.62 &  51.53 &  62.95 & $-16.33$ & $-26.42$ & $-15.00$ \\
+    Guitar   & 70.07 &  74.18 &  98.36 &  89.31 & $+4.11$  & $+28.29$ & $+19.24$ \\
+    Horse    & 46.32 &  57.60 &  48.04 &  71.69 & $+11.28$ & $+1.72$  & $+25.37$ \\
+    House    & 83.75 & 100.00 & 100.00 & 100.00 & $+16.25$ & $+16.25$ & $+16.25$ \\
+    Person   & 61.25 &  86.25 &  98.12 &  99.38 & $+25.00$ & $+36.87$ & $+38.13$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \caption{Two most wrong - Similar pattern}
+  \label{tab:t2-confusions}
+  \centering
+  \footnotesize
+  \begin{tabular}{llll}
+    \toprule
+    True class & Source-only & DANN & CDAN \\
+    \midrule
+    Dog      & elephant 333, giraffe 167 & person 397, house 18 & person 139, elephant 62 \\
+    Horse    & giraffe 293, elephant 111 & dog 204, person 166  & dog 134, person 33 \\
+    Elephant & person 21, giraffe 13     & person 400, dog 49   & person 65, dog 58 \\
+    Giraffe  & elephant 99, horse 34     & person 164, dog 142  & dog 175, horse 56 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize Two most frequent wrong predictions per class, with counts.
+\end{table}
+
+Further data shows us that four classes show interesting behavior. Dog (+20.99 to +43.14) and Person (+25.00 to +38.13) improve under every method, while
+Elephant and Giraffe degrade under every method. It almost seems like the model is trading the improvement in two for the others, no one improved all four.
+
+\subsubsection{Controlled Design Study}
+
+\begin{table}[H]
+  \caption{Control study - too high a $lambda$ collapses the model}
+  \label{tab:t2-study-compact}
+  \centering
+  \begin{tabular}{lccc}
+    \toprule
+    $\lambda_{\mathrm{MMD}}$ & Mean source F1 (\%) & Sketch acc.\ (\%) & Domain separability (\%) \\
+    \midrule
+    0 (source-only) & 94.85 & 61.59 & 100.00 \\
+    0.1             & 94.73 & 62.31 &  92.17 \\
+    1               & 94.93 & 64.44 &  81.87 \\
+    10              &  5.07 &  4.07 &  60.03 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+A higher $\lambda$ means a higher penalty for difference between the source domain feature distribution, so increasing it should mean the model more aggressively tries
+to match the feature distributions. And we see exactly that for the first three rows, however $\lambda = 10$ completely collapses the model. It is such a sever penalty
+that all the distributions get so mixed up that the model can no longer tell any of them apart. F1 Mean on source alone is enough to disqualify 10 as optimial even without
+consulting target domain labels.
 
 
 \subsection{Open-Set Recognition (OSR)}
