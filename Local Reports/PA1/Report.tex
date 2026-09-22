@@ -328,7 +328,7 @@ The t-SNE diagrams (Figures\ref{fig:tsne-clip} \ref{fig:tsne-resnet} \ref{fig:ts
 We first train both the model and the classifier hear on the source domains using cross entropy, which results in these measurements.
 
 \begin{table}[H]
-  \caption{TODO: your caption and key take-away.}
+  \caption{Source only ERM - the main domain gap identified}
   \label{tab:source-only}
   \centering
   \begin{tabular}{lcc}
@@ -347,8 +347,11 @@ We first train both the model and the classifier hear on the source domains usin
   \end{tabular}
 \end{table}
 
+As we can see in source only statistics, the accuracy on our source domains is very good, but when ran on a unknown domain (for us that is sketch) we notice a massive accuracy drop.
+compared with the mean it is a -33 \% drop, this is the main figure we try to lower in these experiments.
+
 \begin{table}[H]
-  \caption{TODO: your caption and key take-away.}
+  \caption{Target Domain by class - high amounts of variation.}
   \label{tab:source-only-per-class}
   \centering
   \begin{tabular}{lc}
@@ -366,6 +369,17 @@ We first train both the model and the classifier hear on the source domains usin
   \end{tabular}
 \end{table}
 
+when we see the by class accuracy on the target domain, dog performs worst while elephant performs best.
+Dog is the largest class in the sketch data, we found dog's 333 most common errors go to elephant, 167 to giraffe. It is probable it is not confusing
+animals and objects at least, it is confused within animal classes.
+
+\subsubsection{DAN - MMD Alignment}
+
+
+
+\subsection{Open-Set Recognition (OSR)}
+
+\subsubsection{Vanilla Closed-Set Baseline}
 
 \subsection{Cross-Task Discussion}
 
