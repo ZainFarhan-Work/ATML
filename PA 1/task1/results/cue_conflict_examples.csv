@@ -1,0 +1,4 @@
+category,stem,content,style,ResNet-50,ViT-B/16,CLIP head,CLIP zero-shot
+all systems: shape,bird-truck_19,bird,truck,bird,bird,bird,bird
+"ResNet-50 texture, others shape",bird-truck_02,bird,truck,truck,bird,bird,bird
+all systems: neither,airplane-cat_00,airplane,cat,deer,deer,horse,horse
