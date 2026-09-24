@@ -83,13 +83,8 @@
 
 
 \begin{abstract}
-  In this research paper we will learn and investigate how various supervised learning models learn features. We will do this
-  through four tasks. In task 1 we will see how strong inductive bias is in models and how their architecture can effect how they
-  learn features (i.e. whether they learn shape or texture or some other attribute). In task 2 we will observe how this effects Domain
-  Generalization. The idea being that we want the model to learn identifying features about the objects (like their shape) instead of Domain
-  Specific features (like if the dataset had grass behind every cat and the model associated the grass with the cat). If the model can do this, it should
-  perform well even on Domain Shifts. We extend this idea in task 3 with Domain Generalization and completely unknown target domains. Finally, in task 4
-  we tackle the open set problem, to see if we can identify casual features even on unknown classes, and separate them as they come. The source code can be found on
+  In this research paper we will learn and investigate how various supervised learning models learn features. We will cover four path ways: Induction Biases, Domain Adaptation, Domain Generalization, and
+  the Open Set Problem. The source code can be found on
   \hyperlink{https://github.com/ZainFarhan-Work/ATML}{GitHub} (https://github.com/ZainFarhan-Work/ATML).
 \end{abstract}
 
@@ -101,15 +96,10 @@ This is done in four parts.
 
 First, we will see the study the influence of Inductive Biases and Feature Representations, our goal here is to see the influence of model architecture.
 By comparing the metrics of four well known and standard models (ResNet-50, ViT-B, CLIP). We will first perform a baseline metric on all of them, and then
-perform 5 different experiments. Colour Bias: We perform two different types, grey scale, and hue shift, and see how well the models perform.
-Shape vs Texture (cue-conflict): We apply the texture of one object to another, to see if models are using texture or shape for classification and which is more important.
-Translation: We shift the images, left, right, up, or down and see if the model can still classify. Lastly, we shuffle the patches of the images
-to see how the global structure effects the models.
+perform 5 different experiments. Colour Bias, Grey Scale, Shape vs Texture, and Translation.
 
-Our points of interest are, what cue-conflict and colour reveal about reliance on shape, texture, and colour, and what coverage can tell us about shape bias.
-How the models respond when spatial structure is altered and what that tells us about the importance of locality, global organisation, and positional sensitivity.
-To what extent prediction-level changes agree with changes in feature representations, and which observed difference can reasonably be attributed
-to architecture as opposed to pretraining data, supervision, augmentation or model capacity.
+Then we will see Domain Adaptation and Domain Generalization, where we study DAN with MMD, DANN - Adversarial Alignment, CDAN, SAM, and DAN-DG. For the open set problem we will
+see GCSC and PROSER with both MLS and Placeholder
 
 \section{Experimental Setup/Methods}
 \label{sec:setup}
@@ -172,11 +162,11 @@ Scores: MSP $=1-\max_k p_k$. MLS $=-\max_k z_k$. Energy $=-\log\sum_k e^{z_k}$. 
 \subsection{Inductive Biases and Feature Representations}
 
 We first take some basic measurements as a baseline, we freeze the three classifier heads and measure top-1 accuracy,
-macro-F1, and mean maximum confidence. We also do this for zero shot CLIP, we measure confidence from the softmax over scaled
+macro-F1, and mean maximum confidence (Table~\ref{tab:clean-baseline}). We also do this for zero shot CLIP, we measure confidence from the softmax over scaled
 class similarities.
 
 \begin{table}[t]
-  \caption{TODO: your caption and key take-away.}
+  \caption{Overall Comprehensive Comparison}
   \label{tab:task1-compact}
   \centering
   \footnotesize
@@ -208,7 +198,7 @@ just that rows can't be compared the magnitude lower, not because it is less con
 
 \subsubsection{Color Bias}
 
-We did two experiments with colour, the first we changed the images to greyscale measured the same metrics and got the following results:
+We did two experiments with colour, the first we changed the images to greyscale measured the same metrics and got the following results (Table~\ref{tab:grayscale}).
 
 % [moved to appendix, Task 1 / Color Bias: tab:grayscale]
 
@@ -224,7 +214,7 @@ saturated images. On less saturated images the change is very minimal, making th
 
 % [moved to appendix, Task 1 / Color Bias: tab:hue40]
 
-Again we see a minimal change in accuracy, this time they are much closer to each other. No claims can be made as the difference is small enough that it can
+Again we see a minimal change in accuracy (Table~\ref{tab:hue40}), this time they are much closer to each other. No claims can be made as the difference is small enough that it can
 be considered noise. Again though, we will find that ViT is just slightly more consistent than other models. It is also of note that unlike greyscale, CLIP is
 much more in line with other models. One explanation for this is that in greyscale, we totally lost colour information, however with a rotation, the relationship
 between the colour of the objects is still the same, it has just been rotated. Hence, the loss is less with CLIP now.
@@ -266,7 +256,7 @@ implementation resulted in images with quite high distortion with our particular
 
 \subsubsection{Patch Structure}
 
-We divided the images into 4x4 patches, and shuffled the patches. We feed the shuffled images back in the model to measure the metrics:
+We divided the images into 4x4 patches, and shuffled the patches. We feed the shuffled images back in the model to measure the metrics (Table~\ref{tab:patch-shuffle}).
 
 % [moved to appendix, Task 1 / Patch Structure: tab:patch-shuffle]
 
@@ -329,7 +319,7 @@ The rest of the t-SNE diagrams (Figures\ref{fig:tsne-resnet} \ref{fig:tsne-vit} 
 
 \subsubsection{Source Only ERM}
 
-We first train both the model and the classifier hear on the source domains using cross entropy, which results in these measurements.
+We first train both the model and the classifier hear on the source domains using cross entropy, which results in these measurements (Table~\ref{tab:source-only}).
 
 % [moved to appendix, Task 2 / Source Only ERM: tab:source-only]
 
@@ -338,7 +328,7 @@ compared with the mean it is a -33 \% drop, this is the main figure we try to lo
 
 % [moved to appendix, Task 2 / Source Only ERM: tab:source-only-per-class]
 
-when we see the by class accuracy on the target domain, dog performs worst while elephant performs best.
+when we see the by class accuracy on the target domain (Table~\ref{tab:source-only-per-class}), dog performs worst while elephant performs best.
 Dog is the largest class in the sketch data, we found dog's 333 most common errors go to elephant, 167 to giraffe. It is probable it is not confusing
 animals and objects at least, it is confused within animal classes.
 
@@ -346,22 +336,22 @@ animals and objects at least, it is confused within animal classes.
 
 % [moved to appendix, Task 2 / DAN - MMD Alignment: tab:dan]
 
-If we observe the general by class results for MMD, we see a slight but still meaningful improvement over the sketch accuracy.
+If we observe the general by class results for MMD, we see a slight but still meaningful improvement over the sketch accuracy (Table~\ref{tab:dan}).
 Though the sketch F1 - macro decreases by a bit.
 
 % [moved to appendix, Task 2 / DAN - MMD Alignment: tab:dan-per-class]
 
-We see all classes improve in accuracy, except for giraffe and elephant, but given that in source only most of the errors
+We see all classes improve in accuracy, except for giraffe and elephant (Table~\ref{tab:dan-per-class}), but given that in source only most of the errors
 in the dog class went to giraffe and elephant, it is likely they were over represented in the original model in the first place.
 
 \subsubsection{DANN - Adversarial Alignment}
 
-We now use adversarial learning to see how well it performs. And get the following results:
+We now use adversarial learning to see how well it performs. And get the following results (Table~\ref{tab:dann}).
 
 % [moved to appendix, Task 2 / DANN - Adversarial Alignment: tab:dann]
 
 Interestingly not only is the performance on the sketch pictures worse than source, but the the predictions on source only is also worse.
-At first this might make it look like DANN didn't work, but after further investigation we find this:
+At first this might make it look like DANN didn't work, but after further investigation we find this (Table~\ref{tab:dann-training}).
 
 % [moved to appendix, Task 2 / DANN - Adversarial Alignment: tab:dann-training]
 
@@ -375,14 +365,14 @@ To improve the scores from before we use the values of the prediction as well, w
 
 % [moved to appendix, Task 2 / CDAN - Class-Conditional Adversarial Alignment: tab:cdan]
 
-The performance on the source only metric stays the same, but the accuracy on sketch images received a significant improvement.
+The performance on the source only metric stays the same, but the accuracy on sketch images received a significant improvement (Table~\ref{tab:cdan}).
 Meaning that even soft information about the final prediction was very helpful to the discriminator. Improving its performance which
 improved the backbone to more aggressively compete with it. However, it was not lower domain separability that did this, as domain separability
 essentially remained the same. It can be speculated that domain information is important as that helps the model to classify them.
 
 \subsubsection{Common Evaluation and Alignment Diagnostic}
 
-We compare the results overall:
+We compare the results overall.
 
 \begin{table}[t]
   \caption{Diagnostic - Separability might not be the deciding factor}
@@ -484,7 +474,7 @@ We ruse the same ERM Baseline as last time, refereed to in table\ref{tab:source-
 
 \subsubsection{DAN-DG - Pairwise Source-Domain Alignment}
 
-In our initial configuration, which matched task with DAN for the sake of comparison, the model collapses.
+In our initial configuration, which matched task with DAN for the sake of comparison, the model collapses (Table~\ref{tab:dandg}).
 
 % [moved to appendix, Task 3 / DAN-DG - Pairwise Source-Domain Alignment: tab:dandg]
 
@@ -545,7 +535,7 @@ We now try to land on a flatter space of the loss, which should in theory be whe
 
 % [moved to appendix, Task 3 / SAM - Parameter-Space Stability: tab:sam]
 
-This worked much better and cleaner than our DAN-DG we see a obvious improvement on our target domain.
+This worked much better and cleaner than our DAN-DG we see a obvious improvement on our target domain (Table~\ref{tab:sam}).
 
 \subsubsection{Common Evaluation and Diagnosis}
 
@@ -631,13 +621,13 @@ performance is completely destroyed which slowest that it can't be used as an ac
 
 \subsubsection{Vanilla Closed-Set Baseline}
 
-We first train a very traditional ResNet classifier, with ten classes to get a Vanilla score. The results are as follows.
+We first train a very traditional ResNet classifier, with ten classes to get a Vanilla score. The results are this (Table~\ref{tab:vanilla-baseline}).
 
 % [moved to appendix, Task 4 / Vanilla Closed-Set Baseline: tab:vanilla-baseline]
 
 \subsubsection{Post-Hoc Novelty Score}
 
-We froze the Vanilla Model, and measured different unknowness scores on it.
+We froze the Vanilla Model, and measured different unknowness scores on it (Table~\ref{tab:vanilla-threshold}).
 
 % [moved to appendix, Task 4 / Post-Hoc Novelty Score: tab:vanilla-threshold]
 
@@ -648,17 +638,17 @@ We achieve this by training on random positive augmentations.
 
 % [moved to appendix, Task 4 / GCSC - Strong Closed-Set Classifier + MLS: tab:gcsc-closed-set]
 
-For CIFAR 10 we see that both validation and test accuracy increase slightly, but when we see the effect on unknown classifications, we see that they also improve across the board.
+For CIFAR 10 we see that both validation and test accuracy increase slightly (Table~\ref{tab:gcsc-closed-set}), but when we see the effect on unknown classifications, we see that they also improve across the board (Table~\ref{tab:gcsc-auroc}).
 
 % [moved to appendix, Task 4 / GCSC - Strong Closed-Set Classifier + MLS: tab:gcsc-auroc]
 
 \subsubsection{PROSER - Classifier and Data Placeholders}
 
-We amek a new class by taking latents of two classes and doing a inner join to get their middle, this creates a new unkown class.
+We make a new class by taking latents of two classes and doing a inner join to get their middle, this creates a new unkown class.
 
 % [moved to appendix, Task 4 / PROSER - Classifier and Data Placeholders: tab:proser-closed-set]
 
-On the CIFAR-10 data set we see similar levels of performance, though we get there earlier, the same trend continues for Unkown classifications.
+On the CIFAR-10 data set we see similar levels of performance (Table~\ref{tab:proser-closed-set}), though we get there earlier, the same trend continues for Unkown classifications (Table~\ref{tab:proser-auroc}).
 
 % [moved to appendix, Task 4 / PROSER - Classifier and Data Placeholders: tab:proser-auroc]
 
@@ -749,10 +739,13 @@ traing enough to make significant progress, and the extra unkown class hampered 
 Detecting Far imges seems to be much easier throughout, most likely because they look so different, so it's easier for the model to tell them apart.
 In table\ref{tab:osr-failures} we can see that where as the worst Near are all wrongly classied at above 80\%, the far are all less than 60\%.
 
-\subsection{Cross-Task Discussion}
-
 \section{Conclusions}
 \label{sec:conclusion}
+
+We saw that in terms of inductive bias, CNNs have strong texture bias while Visual Transformers have a shape bias. Neither had strong colour or translation Bias.
+For Domain Adaptation we see DAN with MMD beat DANN with adversarial alignment while CDAN did better than both. WIth DOmain Adaptation we saw SAM
+perform much better than DAN-DG as well as being much more stable. Lastly, with our Open Set problem we saw GCSC significantly out perform, while both PROSER variants
+were unable to beat even vanilla
 
 \section{References}
 \label{sec:references}
@@ -769,7 +762,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{Clean Baseline}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{Clean Baseline - Shows all models performing very well on the dataset.}
   \label{tab:clean-baseline}
   \centering
@@ -787,7 +780,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{Color Bias}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{Greyscale: Minimal change in Top-1 Accuracy}
   \label{tab:grayscale}
   \centering
@@ -803,7 +796,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
   \end{tabular}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{Hue Rotation of 40: Minimal change in accuracy}
   \label{tab:hue40}
   \centering
@@ -821,7 +814,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{Patch Structure}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{Patch Shuffling: Transformers suffer the most}
   \label{tab:patch-shuffle}
   \centering
@@ -846,7 +839,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
   \label{fig:tsne-resnet}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.85\linewidth]{figures/tsne_vit_b_16.png}
   \caption{Vit-B t-SNE: Representations overlap except in Cue Conflict}
@@ -857,7 +850,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{Source Only ERM}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{Source only ERM - the main domain gap identified}
   \label{tab:source-only}
   \centering
@@ -877,7 +870,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
   \end{tabular}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{Target Domain by class - high amounts of variation.}
   \label{tab:source-only-per-class}
   \centering
@@ -898,7 +891,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{DAN - MMD Alignment}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{DA with MMD - Slight improvement over Source Only}
   \label{tab:dan}
   \centering
@@ -921,7 +914,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
   \end{tabular}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{MMD by Class - Good by class improvement}
   \label{tab:dan-per-class}
   \centering
@@ -942,7 +935,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{DANN - Adversarial Alignment}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{DANN - The performances worsened}
   \label{tab:dann}
   \centering
@@ -965,7 +958,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
   \end{tabular}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{Tracking Per Epoch - Loss was decreasing while Domain accuracy was going to 0.5}
   \label{tab:dann-training}
   \centering
@@ -989,7 +982,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{CDAN - Class-Conditional Adversarial Alignment}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{CDAN: Significant Improvement from before}
   \label{tab:cdan}
   \centering
@@ -1016,7 +1009,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{DAN-DG - Pairwise Source-Domain Alignment}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{Comparison with ERM - complete model collapsed.}
   \label{tab:dandg}
   \centering
@@ -1044,7 +1037,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{SAM - Parameter-Space Stability}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{SAM - Stable performances and great improvement}
   \label{tab:sam}
   \centering
@@ -1074,7 +1067,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{Vanilla Closed-Set Baseline}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{Vanilla Model - Intentionally made strong with 95 validation accuracy for later  comparison.}
   \label{tab:vanilla-baseline}
   \centering
@@ -1096,7 +1089,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{Post-Hoc Novelty Score}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{TODO: your caption and key take-away.}
   \label{tab:vanilla-threshold}
   \centering
@@ -1119,7 +1112,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{GCSC - Strong Closed-Set Classifier + MLS}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{GCSC - Validations acc and Test acc both increase slightly}
   \label{tab:gcsc-closed-set}
   \centering
@@ -1137,7 +1130,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
   GCSC adds RandAugment(2, 9) after the crop and flip.
 \end{table}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{GCSC - Classifications scores all improve}
   \label{tab:gcsc-auroc}
   \centering
@@ -1154,7 +1147,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 
 \subsection{PROSER - Classifier and Data Placeholders}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{PROSER - Same Level of CIFAR-10 for less EPOCH}
   \label{tab:proser-closed-set}
   \centering
@@ -1173,7 +1166,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
   classifiers appended. CSA uses the ten known-class logits only.
 \end{table}
 
-\begin{table}[t]
+\begin{table}[H]
   \caption{PROSER - Same Level of performance for less EPOCH.}
   \label{tab:proser-auroc}
   \centering
