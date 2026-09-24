@@ -1,0 +1,13 @@
+group,index,unknown_class,predicted_class,mls_score,tau,margin_below_tau,class_accepted,class_total
+near,614,pickup_truck,automobile,-11.538,-5.718,5.82,91,100
+near,410,bus,truck,-12.357,-5.718,6.64,82,100
+near,54,wolf,dog,-11.37,-5.718,5.652,81,100
+near,649,fox,dog,-11.568,-5.718,5.85,71,100
+near,96,tractor,truck,-10.887,-5.718,5.169,66,100
+near,735,leopard,cat,-10.963,-5.718,5.245,63,100
+far,455,wardrobe,cat,-11.529,-5.718,5.811,58,100
+far,422,mushroom,cat,-12.729,-5.718,7.011,55,100
+far,425,sunflower,bird,-10.985,-5.718,5.268,52,100
+far,489,bowl,dog,-11.224,-5.718,5.506,45,100
+far,70,clock,dog,-9.187,-5.718,3.47,45,100
+far,478,bottle,cat,-10.69,-5.718,4.973,37,100

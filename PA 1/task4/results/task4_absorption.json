@@ -1,0 +1,54 @@
+{
+ "near": {
+  "accepted": 555,
+  "of": 800,
+  "by_known_class": {
+   "truck": 154,
+   "cat": 109,
+   "automobile": 98,
+   "dog": 64,
+   "deer": 47,
+   "frog": 27,
+   "horse": 21,
+   "airplane": 14,
+   "bird": 14,
+   "ship": 7
+  },
+  "acceptance_by_unknown_class": {
+   "bus": 82.0,
+   "camel": 62.0,
+   "fox": 71.0,
+   "leopard": 63.0,
+   "motorcycle": 39.0,
+   "pickup_truck": 91.0,
+   "tractor": 66.0,
+   "wolf": 81.0
+  }
+ },
+ "far": {
+  "accepted": 363,
+  "of": 800,
+  "by_known_class": {
+   "cat": 103,
+   "bird": 73,
+   "truck": 46,
+   "airplane": 42,
+   "frog": 32,
+   "ship": 27,
+   "dog": 18,
+   "automobile": 14,
+   "deer": 6,
+   "horse": 2
+  },
+  "acceptance_by_unknown_class": {
+   "bottle": 37.0,
+   "bowl": 45.0,
+   "chair": 36.0,
+   "clock": 45.0,
+   "keyboard": 35.0,
+   "mushroom": 55.0,
+   "sunflower": 52.0,
+   "wardrobe": 58.0
+  }
+ }
+}

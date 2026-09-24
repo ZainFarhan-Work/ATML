@@ -609,10 +609,410 @@ to match the feature distributions. And we see exactly that for the first three 
 that all the distributions get so mixed up that the model can no longer tell any of them apart. F1 Mean on source alone is enough to disqualify 10 as optimial even without
 consulting target domain labels.
 
+\subsubsection{Domain Generalization}
+
+We ruse the same ERM Baseline as last time, refereed to in table\ref{tab:source-only} to be efficient with our compute resource.
+
+\subsubsection{DAN-DG - Pairwise Source-Domain Alignment}
+
+In our initial configuration, which matched task with DAN for the sake of comparison, the model collapses.
+
+\begin{table}[H]
+  \caption{Comparison with ERM - complete model collapsed.}
+  \label{tab:dandg}
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    & ERM & DAN-DG ($\lambda_{\mathrm{DG}}=1$) \\
+    \midrule
+    Photo val macro-F1 (\%)        & 96.85 &  5.86 \\
+    Art Painting val macro-F1 (\%) & 91.69 &  5.14 \\
+    Cartoon val macro-F1 (\%)      & 96.00 &  4.21 \\
+    \midrule
+    Mean source acc (\%)           & 94.91 & 21.68 \\
+    Mean source macro-F1 (\%)      & 94.85 &  5.07 \\
+    Worst source macro-F1 (\%)     & 91.69 &  4.21 \\
+    \midrule
+    Sketch acc (\%)                & 61.59 &  4.07 \\
+    Sketch macro-F1 (\%)           & 63.09 &  1.12 \\
+    $\Delta$ Sketch acc            & ---   & $-57.52$ \\
+    \midrule
+    Source-domain separability (\%) & 91.21 & 38.74 \\
+    $\Delta_{\mathrm{sharp}}$       & 0.2095 & 0.0433 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \caption{Step Data - Model is destroyed by step 50.}
+  \label{tab:dandg-collapse}
+  \centering
+  \begin{tabular}{cccccc}
+    \toprule
+    Step & $\lambda_{\mathrm{DG}}$ & Cls.\ loss & MMD & $\|f\|$ & Feature std \\
+    \midrule
+    0   & 1 & 2.042 & 0.725 & 27.93 & 0.7891 \\
+    50  & 1 & 1.948 & 0.286 &  3.43 & 0.0017 \\
+    100 & 1 & 1.932 & 0.625 &  2.37 & 0.0003 \\
+    150 & 1 & 1.925 & 0.525 &  2.10 & 0.0000 \\
+    199 & 1 & 1.959 & 0.748 &  2.03 & 0.0000 \\
+    \midrule
+    199 & 0 & 0.096 & ---   & 61.48 & 1.6616 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize Identical code and seed; only $\lambda_{\mathrm{DG}}$ differs. $\ln 7 = 1.946$ is the
+  cross-entropy of a uniform predictor over seven classes. Gradient clipping at 1.0 did not prevent it.
+\end{table}
+
+We speculate that this happens due to the model too aggressively trying to align the source domains. So to remedy this we try
+to ramp up the penalty term ($\lambda$) from zero to one as the model trains instead of just starting from one. The slow increase should allow
+us the model to stablise while still encouraging maximum alignment due to the increasing $\lambda$. Which brings us the following data.
+
+\begin{table}[H]
+  \caption{$\lambda$ Ramp - Improvement from before but still collapsing}
+  \label{tab:dandg-variants}
+  \centering
+  \footnotesize
+  \begin{tabular}{lccccccc}
+    \toprule
+    & & \multicolumn{2}{c}{Source (\%)} & \multicolumn{2}{c}{Sketch (\%)} & & \\
+    \cmidrule(lr){3-4} \cmidrule(lr){5-6}
+    Variant & $\lambda_{\mathrm{DG}}$ & Mean F1 & Worst F1 & Acc. & $\Delta$ & Sep.\ (\%) & $\Delta_{\mathrm{sharp}}$ \\
+    \midrule
+    ERM (no alignment)       & 0      & 94.85 & 91.69 & 61.59 & ---      & 91.21 & 0.2095 \\
+    As specified             & 1      &  5.07 &  4.21 &  4.07 & $-57.52$ & 38.74 & 0.0433 \\
+    Reduced weight           & 0.1    & 96.78 & 96.29 & 69.81 & $+8.22$  & 72.80 & 0.1394 \\
+    Increased weight         & 10     &  5.07 &  4.21 &  4.07 & $-57.52$ & 27.47 & 0.0057 \\
+    $\lambda$ ramp           & 0 to 1 & 94.43 & 92.41 & 62.31 & $+0.72$  & 76.37 & 0.3216 \\
+    Bandwidth gradient       & 1      & 94.45 & 92.56 & 71.49 & $+9.90$  & 70.05 & 0.2400 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+It is at least enough to stablise the the model, however we see little to no improvement in the target domain. So as a last resort we increase the Bandwidth Gradient to 1 in the RBF Kernel,
+this is perhaps the most direct way of telling the MMD Loss to not brind the domains too close, this finally results in a significant improvement to the sketch accuracy, however we can no longer
+compare these results to our earlier experiments. There was more room for improvement here, we could perhaps try a fixed $\lambda$ value of 0.5, however due to limited compute times, we could not try that. 
+
+\subsubsection{SAM - Parameter-Space Stability}
+
+We now try to land on a flatter space of the loss, which should in theory be where the neighboring space all occupy similar features.
+
+\begin{table}[H]
+  \caption{SAM - Stable performances and great improvement}
+  \label{tab:sam}
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    & ERM & SAM ($\rho=0.05$) \\
+    \midrule
+    Photo val macro-F1 (\%)        & 96.85 & 96.41 \\
+    Art Painting val macro-F1 (\%) & 91.69 & 93.65 \\
+    Cartoon val macro-F1 (\%)      & 96.00 & 97.13 \\
+    \midrule
+    Mean source acc (\%)           & 94.91 & 95.74 \\
+    Mean source macro-F1 (\%)      & 94.85 & 95.73 \\
+    Worst source macro-F1 (\%)     & 91.69 & 93.65 \\
+    \midrule
+    Sketch acc (\%)                & 61.59 & 74.12 \\
+    Sketch macro-F1 (\%)           & 63.09 & 74.98 \\
+    $\Delta$ Sketch acc            & ---   & $+12.53$ \\
+    \midrule
+    Source-domain separability (\%) & 91.21 & 89.01 \\
+    $\Delta_{\mathrm{sharp}}$       & 0.2095 & 0.1116 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+This worked much better and cleaner than our DAN-DG we see a obvious improvement on our target domain.
+
+\subsubsection{Common Evaluation and Diagnosis}
+
+We compare our previous results.
+
+\begin{table}[H]
+  \caption{Full Comparison - source}
+  \label{tab:t3-common}
+  \centering
+  \footnotesize
+  \begin{tabular}{lcccccccccc}
+    \toprule
+    & \multicolumn{3}{c}{Source val.\ acc.\ (\%)} & \multicolumn{2}{c}{Mean source (\%)} & \multicolumn{2}{c}{Worst (\%)} & \multicolumn{2}{c}{Sketch (\%)} & \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10}
+    Method & Photo & Art & Cartoon & Acc. & F1 & Acc. & F1 & Acc. & F1 & $\Delta$ Acc. \\
+    \midrule
+    ERM    & 97.30 & 91.71 & 95.74 & 94.91 & 94.85 & 91.71 & 91.69 & 61.59 & 63.09 & ---      \\
+    DAN-DG & 96.40 & 92.93 & 94.88 & 94.74 & 94.45 & 92.93 & 92.56 & 71.49 & 73.20 & $+9.90$  \\
+    SAM    & 97.00 & 93.41 & 96.80 & 95.74 & 95.73 & 93.41 & 93.65 & 74.12 & 74.98 & $+12.53$ \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize ERM is Task 2's source-only checkpoint, reused unchanged. SAM uses the specified
+  $\rho=0.05$. DAN-DG uses $\lambda_{\mathrm{DG}}=1$ with gradient flowing through the
+  median-heuristic bandwidth; with the bandwidth detached the run collapsed
+  (Table~\ref{tab:dandg-collapse}).
+\end{table}
+
+We compare all our numbers against each other, with one interesting trend that was also in Domain Adaptation, which that accuracies on source domains
+are not at all predictive of  sketch accuracy, difference between source being minimal with SAM and ERM only, but sketch accuracy is massively improved by SAM.
+
+\begin{table}[H]
+  \caption{Domain Separability and Sharp - SAM had lowest Domain separability}
+  \label{tab:t3-diagnostics-main}
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    Method & Source-domain separability (\%) & $\Delta_{\mathrm{sharp}}$ \\
+    \midrule
+    ERM    & 91.21 & 0.2095 \\
+    DAN-DG & 70.05 & 0.2400 \\
+    SAM    & 89.01 & 0.1116 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize Separability: three-way logistic-regression probe over Photo / Art Painting /
+  Cartoon on frozen features, $C=1$, 70/30 split, seed 6304; chance is 33.3\%.
+  $\Delta_{\mathrm{sharp}}$: cross-entropy increase after one normalised ascent step of radius 0.05
+  on a fixed batch of 32 images per source domain, model in eval mode.
+\end{table}
+
+We see that DAN does the most work for Source Domain Separability which is what MMD targets, while SAM does not really touch for domain separability but does reduce sharpness the most as we want it to.
+SAM performs very well compared to DAN.
+
+
+\subsubsection{Controlled Desgin Study}
+
+We varied the $\rho$ values for SAM to find how far the trend extends
+
+\begin{table}[H]
+  \caption{$\rho Values - Collapses on 0.1$}
+  \label{tab:sam-study}
+  \centering
+  \footnotesize
+  \begin{tabular}{lcccccc}
+    \toprule
+    & \multicolumn{2}{c}{Source F1 (\%)} & \multicolumn{2}{c}{Sketch (\%)} & & \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+    $\rho$ & Mean & Worst & Acc. & $\Delta$ & Sep.\ (\%) & $\Delta_{\mathrm{sharp}}$ \\
+    \midrule
+    0 (ERM) & 94.85 & 91.69 & 61.59 & ---      & 91.21 & 0.2095 \\
+    0.01    & 94.59 & 91.48 & 63.58 & $+1.99$  & 90.38 & 0.1702 \\
+    0.05    & 95.73 & 93.65 & 74.12 & $+12.53$ & 89.01 & 0.1116 \\
+    0.1     & 12.75 & 10.68 &  4.07 & $-57.52$ & 67.86 & 0.0091 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+with high $\rho$ values the bound extends so far that it starts to go to other regions as well. Sharp still increases as the shallowed are becomes a subset, but
+performance is completely destroyed which slowest that it can't be used as an accurate independent measure of performance for SAM.
 
 \subsection{Open-Set Recognition (OSR)}
 
 \subsubsection{Vanilla Closed-Set Baseline}
+
+We first train a very traditional ResNet classifier, with ten classes to get a Vanilla score. The results are as follows.
+
+\begin{table}[H]
+  \caption{Vanilla Model - Intentionally made strong with 95 validation accuracy for later  comparison.}
+  \label{tab:vanilla-baseline}
+  \centering
+  \begin{tabular}{lc}
+    \toprule
+    & Vanilla ResNet-18 \\
+    \midrule
+    Epochs                               & 100 \\
+    Selected epoch                       & 93 \\
+    CIFAR-10 train accuracy (\%)         & 100.00 \\
+    CIFAR-10 validation accuracy (\%)    & 95.08 \\
+    CIFAR-10 test accuracy, CSA (\%)     & 94.26 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize CIFAR-10 known classes; 45{,}000 / 5{,}000 stratified train / validation split, seed
+  6304. Checkpoint selected by validation accuracy only.
+\end{table}
+
+\subsubsection{Post-Hoc Novelty Score}
+
+We froze the Vanilla Model, and measured different unknowness scores on it.
+
+\begin{table}[H]
+  \caption{TODO: your caption and key take-away.}
+  \label{tab:vanilla-threshold}
+  \centering
+  \footnotesize
+  \begin{tabular}{lccccc}
+    \toprule
+    Score & $\tau$ & Test acc.\ (\%) & Near rej.\ (\%) & Far rej.\ (\%) & FPR@95TPR near / far (\%) \\
+    \midrule
+    MSP         &     0.1721 & 94.34 & 28.25 & 45.38 & 71.75 / 54.62 \\
+    MLS         &  $-5.7175$ & 94.77 & 30.62 & 54.62 & 69.38 / 45.38 \\
+    Energy      &  $-5.9177$ & 94.84 & 31.38 & 54.88 & 68.62 / 45.12 \\
+    Mahalanobis & 2764.0347  & 94.62 & 27.25 & 50.12 & 72.75 / 49.88 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize $\tau$ is the 95th percentile of unknownness on the CIFAR-10 validation set; accept
+  when $u(x)\le\tau$. Rejection is the share of unknowns not accepted; FPR@95TPR is the share
+  incorrectly accepted.
+\end{table}
+
+\subsubsection{GCSC - Strong Closed-Set Classifier + MLS}
+
+Training our model extremely well on a closed set should make it so that it'll be able to differentiate unknowns regardless.
+We achieve this by training on random positive augmentations.
+
+\begin{table}[H]
+  \caption{GCSC - Validations acc and Test acc both increase slightly}
+  \label{tab:gcsc-closed-set}
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    & Vanilla & GCSC \\
+    \midrule
+    Selected epoch                      & 93    & 98    \\
+    CIFAR-10 validation accuracy (\%)   & 95.08 & 95.62 \\
+    CIFAR-10 test accuracy, CSA (\%)    & 94.26 & 95.38 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize Identical recipe, initialization, optimiser, schedule, batch size, epochs and seed;
+  GCSC adds RandAugment(2, 9) after the crop and flip.
+\end{table}
+
+For CIFAR 10 we see that both validation and test accuracy increase slightly, but when we see the effect on unknown classifications, we see that they also improve across the board.
+
+\begin{table}[H]
+  \caption{GCSC - Classifications scores all improve}
+  \label{tab:gcsc-auroc}
+  \centering
+  \begin{tabular}{lcccc}
+    \toprule
+    Model & AUROC near (\%) & AUROC far (\%) & AUROC all (\%) & CSA (\%) \\
+    \midrule
+    Vanilla + MLS & 79.42   & 89.84   & 84.63   & 94.26   \\
+    GCSC + MLS    & 81.84   & 92.13   & 86.99   & 95.38   \\
+    $\Delta$      & $+2.42$ & $+2.29$ & $+2.36$ & $+1.12$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{PROSER - Classifier and Data Placeholders}
+
+We amek a new class by taking latents of two classes and doing a inner join to get their middle, this creates a new unkown class.
+
+\begin{table}[H]
+  \caption{PROSER - Same Level of CIFAR-10 for less EPOCH}
+  \label{tab:proser-closed-set}
+  \centering
+  \begin{tabular}{lccc}
+    \toprule
+    & Vanilla & GCSC & PROSER \\
+    \midrule
+    Epochs                            & 100   & 100   & 50    \\
+    Selected epoch                    & 93    & 98    & 14    \\
+    CIFAR-10 validation accuracy (\%) & 95.08 & 95.62 & 94.72 \\
+    CIFAR-10 test accuracy, CSA (\%)  & 94.26 & 95.38 & 93.63 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize PROSER is initialised from the selected Vanilla checkpoint with five dummy
+  classifiers appended. CSA uses the ten known-class logits only.
+\end{table}
+
+On the CIFAR-10 data set we see similar levels of performance, though we get there earlier, the same trend continues for Unkown classifications.
+
+\begin{table}[H]
+  \caption{PROSER - Same Level of performance for less EPOCH.}
+  \label{tab:proser-auroc}
+  \centering
+  \begin{tabular}{llcccc}
+    \toprule
+    Model & Score & AUROC near (\%) & AUROC far (\%) & AUROC all (\%) & CSA (\%) \\
+    \midrule
+    Vanilla & MLS         & 79.42 & 89.84 & 84.63 & 94.26 \\
+    GCSC    & MLS         & 81.84 & 92.13 & 86.99 & 95.38 \\
+    PROSER  & MLS         & 77.61 & 87.57 & 82.59 & 93.63 \\
+    PROSER  & Placeholder & 74.36 & 84.82 & 79.59 & 93.63 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Common Evaluation and Failure Analysis}
+
+\begin{table}[H]
+  \caption{TODO: your caption and key take-away.}
+  \label{tab:osr-scores}
+  \centering
+  \footnotesize
+  \begin{tabular}{lcccccccc}
+    \toprule
+    & \multicolumn{3}{c}{AUROC (\%)} & \multicolumn{4}{c}{At the 95\% validation threshold (\%)} \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-8}
+    Score & Near & Far & All & Test accept. & Near rej. & Far rej. & FPR near / far \\
+    \midrule
+    MSP         & 80.98 & 89.66 & 85.32 & 94.34 & 28.25 & 45.38 & 71.75 / 54.62 \\
+    MLS         & 79.42 & 89.84 & 84.63 & 94.77 & 30.62 & 54.62 & 69.38 / 45.38 \\
+    Energy      & 79.43 & 89.92 & 84.67 & 94.84 & 31.38 & 54.88 & 68.62 / 45.12 \\
+    Mahalanobis & 79.00 & 91.22 & 85.11 & 94.62 & 27.25 & 50.12 & 72.75 / 49.88 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize Test accept.\ is the share of CIFAR-10 test images accepted at the threshold.
+\end{table}
+
+\begin{table}[H]
+  \caption{TODO: your caption and key take-away.}
+  \label{tab:osr-models}
+  \centering
+  \footnotesize
+  \begin{tabular}{llccccccc}
+    \toprule
+    & & & \multicolumn{3}{c}{AUROC (\%)} & \multicolumn{3}{c}{At the 95\% threshold (\%)} \\
+    \cmidrule(lr){4-6} \cmidrule(lr){7-9}
+    Model & Score & CSA & Near & Far & All & Test accept. & Near rej. & Far rej. \\
+    \midrule
+    Vanilla & MLS         & 94.26 & 79.42 & 89.84 & 84.63 & 94.77 & 30.62 & 54.62 \\
+    GCSC    & MLS         & 95.38 & 81.84 & 92.13 & 86.99 & 94.35 & 37.62 & 64.00 \\
+    PROSER  & MLS         & 93.63 & 77.61 & 87.57 & 82.59 & 94.58 & 29.38 & 44.50 \\
+    PROSER  & Placeholder & 93.63 & 74.36 & 84.82 & 79.59 & 94.66 & 27.25 & 41.37 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize CSA is closed-set accuracy on the ten known-class logits, so both PROSER rows share
+  it. Test accept.\ is the share of CIFAR-10 test images accepted at the threshold.
+\end{table}
+
+\begin{table}[H]
+  \caption{TODO: your caption and key take-away.}
+  \label{tab:osr-failures}
+  \centering
+  \footnotesize
+  \begin{tabular}{llccc}
+    \toprule
+    Group & Unknown class $\rightarrow$ predicted class & MLS score & $\tau$ & Accepted in class \\
+    \midrule
+    Near & pickup\_truck $\rightarrow$ automobile & $-11.54$ & $-5.72$ & 91/100 \\
+    Near & bus $\rightarrow$ truck                & $-12.36$ & $-5.72$ & 82/100 \\
+    Near & wolf $\rightarrow$ dog                 & $-11.37$ & $-5.72$ & 81/100 \\
+    \midrule
+    Far  & wardrobe $\rightarrow$ cat             & $-11.53$ & $-5.72$ & 58/100 \\
+    Far  & mushroom $\rightarrow$ cat             & $-12.73$ & $-5.72$ & 55/100 \\
+    Far  & sunflower $\rightarrow$ bird           & $-10.99$ & $-5.72$ & 52/100 \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  \footnotesize Vanilla, MLS; accept when the score is $\le\tau$. Each row is the most confidently
+  accepted image of that unknown class; the last column gives how many of its 100 test images
+  were accepted.
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{figures/task4_roc.png}
+  \caption{TODO: your caption and key take-away.}
+  \label{fig:osr-roc}
+\end{figure}
 
 \subsection{Cross-Task Discussion}
 
