@@ -134,6 +134,25 @@ Belongie (2017). the encoder/decoder architecture and the pretrained weights com
 naoto0804/pytorch-AdaIN, weights mirrored at BhupatiNadar/adain-style-transfer-models
 on HuggingFace.
 
+\subsection{Unsupervised Domain Adaptation}
+
+Data: PACS. SOurce - Photo, Art Painting, Cartoon. Target: Sketch
+Optimisation: AdamW, lr $10^{-4}$, wd $10^{-4}$
+
+Source Only: Cross-entropy on the pooled source batch. (Also ERM for Domain Generalisation)
+DAN: $\mathcal{L}=\mathcal{L}_{cls}+\lambda\,\mathrm{MMD}^2$ on 512-d features and
+kernel $=$ sum of 3 RBFs with bandwidths $\{0.5,1,2\}\times$ median pairwise squared distance of the combined batch (bandwidth detached), $\lambda=1$
+
+
+\subsection{Domain Generalisation}
+
+\subsection{Open-Set Recognition}
+
+Data: CIFAR-10 train 50,000 → stratified 90/10: 45,000 train / 5,000 val, testing was done on both CIFAR 10 and CIFAR 100.
+Model: CIFAR ResNet-18: 3 x 3 stride-1 stem, no max-pool, random initialisation, 32 x 32
+input, 512-d feature, Linear(512,10).
+
+Scores: MSP $=1-\max_k p_k$. MLS $=-\max_k z_k$. Energy $=-\log\sum_k e^{z_k}$. Mahalanobis $=\min_c (f-\mu_c)^{\top}\Sigma^{-1}(f-\mu_c)$ 
 
 
 \section{Results}
@@ -609,7 +628,7 @@ to match the feature distributions. And we see exactly that for the first three 
 that all the distributions get so mixed up that the model can no longer tell any of them apart. F1 Mean on source alone is enough to disqualify 10 as optimial even without
 consulting target domain labels.
 
-\subsubsection{Domain Generalization}
+\subsection{Domain Generalization}
 
 We ruse the same ERM Baseline as last time, refereed to in table\ref{tab:source-only} to be efficient with our compute resource.
 
@@ -941,7 +960,7 @@ On the CIFAR-10 data set we see similar levels of performance, though we get the
 \subsubsection{Common Evaluation and Failure Analysis}
 
 \begin{table}[H]
-  \caption{TODO: your caption and key take-away.}
+  \caption{Unkowness Score Types - Mahalanobis performed worse while Energy was Best}
   \label{tab:osr-scores}
   \centering
   \footnotesize
@@ -961,8 +980,10 @@ On the CIFAR-10 data set we see similar levels of performance, though we get the
   \footnotesize Test accept.\ is the share of CIFAR-10 test images accepted at the threshold.
 \end{table}
 
+All Unkowness score types had similar performance, in the Near rej stats, which would be the hardest, Mahalanobis performed the worst while Energy performed the best.
+
 \begin{table}[H]
-  \caption{TODO: your caption and key take-away.}
+  \caption{Different Models - GCSC performs the best, both PROSER are worse than Vanilla}
   \label{tab:osr-models}
   \centering
   \footnotesize
@@ -983,8 +1004,13 @@ On the CIFAR-10 data set we see similar levels of performance, though we get the
   it. Test accept.\ is the share of CIFAR-10 test images accepted at the threshold.
 \end{table}
 
+GCSC is the best performer, with significant improvement over Vanilla, both PROSER variants perform worse than Vanilla, the PROSER MLS can be chalked by to Non Gain from the Vanilla.
+The -1.25 gap could be noise. but PROSER Placeholder shows amore apprent worse score. This is more apprent in Far rejections, where both perform considerably
+worse than Vanilla. We choose EPOCH 14 as that is the CIFAR 10 validation was highest, but at that early stage it is possible that the PROSER simply didn'T
+traing enough to make significant progress, and the extra unkown class hampered the model's ability (as the logits would now be spread on one aditional class), instead of helping it.
+
 \begin{table}[H]
-  \caption{TODO: your caption and key take-away.}
+  \caption{Failure Rates - Far are much easier than near}
   \label{tab:osr-failures}
   \centering
   \footnotesize
@@ -1007,12 +1033,16 @@ On the CIFAR-10 data set we see similar levels of performance, though we get the
   were accepted.
 \end{table}
 
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{figures/task4_roc.png}
-  \caption{TODO: your caption and key take-away.}
+  \caption{ROC curve for Detector - Far always performs better}
   \label{fig:osr-roc}
 \end{figure}
+
+Detecting Far imges seems to be much easier throughout, most likely because they look so different, so it's easier for the model to tell them apart.
+In table\ref{tab:osr-failures} we can see that where as the worst Near are all wrongly classied at above 80\%, the far are all less than 60\%.
 
 \subsection{Cross-Task Discussion}
 
