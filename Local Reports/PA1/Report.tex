@@ -146,6 +146,13 @@ kernel $=$ sum of 3 RBFs with bandwidths $\{0.5,1,2\}\times$ median pairwise squ
 
 \subsection{Domain Generalisation}
 
+ERM is shared with Task 2.
+No sketch access.
+
+DAN-DG: $\mathcal{L}=\mathcal{L}_{cls}+\frac{\lambda_{DG}}{3}\sum_{e<e'}\mathrm{MMD}^2(F(X_e),F(X_{e'}))$
+
+Sharpness Proxy: $\Delta_{\mathrm{sharp}}=\mathcal{L}(\theta+\epsilon)-\mathcal{L}(\theta)$, $\epsilon=0.05\,g/\lVert g\rVert_2$ 
+
 \subsection{Open-Set Recognition}
 
 Data: CIFAR-10 train 50,000 → stratified 90/10: 45,000 train / 5,000 val, testing was done on both CIFAR 10 and CIFAR 100.
@@ -1049,7 +1056,10 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
 \section{Conclusions}
 \label{sec:conclusion}
 
-\section{Appendix}
+\section{References}
+\label{sec:references}
+
+\appendix
 \label{sec:appendix}
 
 \begin{figure}[t]
@@ -1073,8 +1083,7 @@ In table\ref{tab:osr-failures} we can see that where as the worst Near are all w
   \label{fig:tsne-clip}
 \end{figure}
 
-\section{References}
-\label{sec:references}
+
 
 
 \end{document}
