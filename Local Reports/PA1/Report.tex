@@ -67,6 +67,7 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{capt-of}
+\usepackage{longtable}
 \graphicspath{{../PA1/}}  % figures live next to the original report
 
 \title{Feature Learning in Supervised AI Models}
@@ -84,6 +85,9 @@
 \setlength{\floatsep}{6pt plus 2pt minus 2pt}
 \setlength{\intextsep}{6pt plus 2pt minus 2pt}
 \setlength{\abovecaptionskip}{3pt}
+\newenvironment{tight}{\begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parsep}{0pt}\setlength{\topsep}{2pt}\setlength{\parskip}{0pt}}{\end{itemize}}
+\newcommand{\kv}[2]{\textbf{#1} & #2 \\[2pt]}
+\newenvironment{spec}{\par\smallskip\noindent\begin{longtable}{@{}p{0.19\linewidth}p{0.77\linewidth}@{}}\toprule}{\bottomrule\end{longtable}\par}
 \begin{document}
 
 
@@ -110,45 +114,44 @@ see GCSC and PROSER with both MLS and Placeholder
 \section{Experimental Setup/Methods}
 \label{sec:setup}
 
+All experiments use seed 6304. All deviations from the manual are in Appendix~\ref{app:deviations}.
+
 \subsection{Inductive Biases and Feature Representations}
-
-\textbf{Dataset:} STL-10
-
-For the Shape vs Texture we used AdaIN implementation, which follows Huang \&
-Belongie (2017). the encoder/decoder architecture and the pretrained weights come from the public reimplementation
-naoto0804/pytorch-AdaIN, weights mirrored at BhupatiNadar/adain-style-transfer-models
-on HuggingFace.
+\begin{tight}
+  \item \textbf{Dataset:} STL-10.
+  \item \textbf{Models:} ResNet-50, ViT-B/16 and CLIP ViT-B-32, frozen, with linear heads (plus zero-shot CLIP).
+  \item \textbf{Style transfer:} For Shape vs.\ Texture we used the AdaIN implementation, which follows \citet{huang2017adain}. The encoder/decoder architecture and the pretrained weights come from the public reimplementation \texttt{naoto0804/pytorch-AdaIN}, with weights mirrored at \texttt{BhupatiNadar/adain-style-transfer-models} on HuggingFace.
+\end{tight}
 
 \subsection{Unsupervised Domain Adaptation}
-
-Data: PACS. SOurce - Photo, Art Painting, Cartoon. Target: Sketch
-Optimisation: AdamW, lr $10^{-4}$, wd $10^{-4}$
-
-Source Only: Cross-entropy on the pooled source batch. (Also ERM for Domain Generalisation)
-DAN: $\mathcal{L}=\mathcal{L}_{cls}+\lambda\,\mathrm{MMD}^2$ on 512-d features and
-kernel $=$ sum of 3 RBFs with bandwidths $\{0.5,1,2\}\times$ median pairwise squared distance of the combined batch (bandwidth detached), $\lambda=1$
-
+\begin{tight}
+  \item \textbf{Data:} PACS. Source: Photo, Art Painting, Cartoon. Target: Sketch.
+  \item \textbf{Model:} ResNet-18.
+  \item \textbf{Optimisation:} AdamW, lr $10^{-4}$, wd $10^{-4}$.
+  \item \textbf{Source-only:} Cross-entropy on the pooled source batch (also the ERM baseline for Task 3).
+  \item \textbf{DAN} \citep{long2015dan}\textbf{:} $\mathcal{L}=\mathcal{L}_{cls}+\lambda\,\mathrm{MMD}^2$ on 512-d features, kernel $=$ sum of 3 RBFs with bandwidths $\{0.5,1,2\}\times$ median pairwise squared distance of the combined batch (bandwidth detached), $\lambda=1$.
+  \item \textbf{DANN} \citep{ganin2016dann}\textbf{:} gradient-reversal discriminator on the 512-d feature, $\alpha(p)=\frac{2}{1+e^{-10p}}-1$.
+  \item \textbf{CDAN} \citep{long2018cdan}\textbf{:} as DANN, with discriminator input $\mathrm{vec}(f\otimes p)$.
+\end{tight}
 
 \subsection{Domain Generalisation}
-
-ERM is shared with Task 2.
-No sketch access.
-
-DAN-DG: $\mathcal{L}=\mathcal{L}_{cls}+\frac{\lambda_{DG}}{3}\sum_{e<e'}\mathrm{MMD}^2(F(X_e),F(X_{e'}))$
-
-Sharpness Proxy: $\Delta_{\mathrm{sharp}}=\mathcal{L}(\theta+\epsilon)-\mathcal{L}(\theta)$, $\epsilon=0.05\,g/\lVert g\rVert_2$ 
+\begin{tight}
+  \item \textbf{ERM:} shared with Task 2. No Sketch access.
+  \item \textbf{DAN-DG:} $\mathcal{L}=\mathcal{L}_{cls}+\frac{\lambda_{DG}}{3}\sum_{e<e'}\mathrm{MMD}^2(F(X_e),F(X_{e'}))$, $\lambda_{DG}=1$.
+  \item \textbf{SAM} \citep{foret2021sam}\textbf{:} $\min_\theta\max_{\lVert\epsilon\rVert_2\le\rho}\mathcal{L}(\theta+\epsilon)$, $\rho=0.05$.
+  \item \textbf{Sharpness proxy:} $\Delta_{\mathrm{sharp}}=\mathcal{L}(\theta+\epsilon)-\mathcal{L}(\theta)$, $\epsilon=0.05\,g/\lVert g\rVert_2$.
+\end{tight}
 
 \subsection{Open-Set Recognition}
+\begin{tight}
+  \item \textbf{Data:} CIFAR-10 train 50,000 $\to$ stratified 90/10: 45,000 train / 5,000 val. Testing was done on both CIFAR-10 and CIFAR-100 (near and far unknowns, 800 each).
+  \item \textbf{Model:} CIFAR ResNet-18: $3\times3$ stride-1 stem, no max-pool, random initialisation, $32\times32$ input, 512-d feature, Linear(512,10).
+  \item \textbf{GCSC:} vanilla recipe plus RandAugment (2, 9).
+  \item \textbf{PROSER} \citep{zhou2021proser}\textbf{:} initialised from Vanilla, 5 dummy classifiers, $\beta=1$, $\gamma=0.1$.
+  \item \textbf{Scores:} MSP \citep{hendrycks2017msp} $=1-\max_k p_k$. MLS \citep{vaze2022osr} $=-\max_k z_k$. Energy \citep{liu2020energy} $=-\log\sum_k e^{z_k}$. Mahalanobis $=\min_c (f-\mu_c)^{\top}\Sigma^{-1}(f-\mu_c)$.
+  \item \textbf{Threshold:} 95th percentile of the score on CIFAR-10 validation.
+\end{tight}
 
-Data: CIFAR-10 train 50,000 → stratified 90/10: 45,000 train / 5,000 val, testing was done on both CIFAR 10 and CIFAR 100.
-Model: CIFAR ResNet-18: 3 x 3 stride-1 stem, no max-pool, random initialisation, 32 x 32
-input, 512-d feature, Linear(512,10).
-
-Scores: MSP $=1-\max_k p_k$. MLS $=-\max_k z_k$. Energy $=-\log\sum_k e^{z_k}$. Mahalanobis $=\min_c (f-\mu_c)^{\top}\Sigma^{-1}(f-\mu_c)$ 
-
-\subsection{Deviations and Detailed Setup}
-
-All noted deviations and more details on setup can ve found in the Appendix\ref{sec:appendix}
 
 \section{Results}
 \label{sec:results}
@@ -236,7 +239,7 @@ For this comparison alpha strength of 1 was required, as lower values did not tr
 
 Out of a total of 400 candidate images only 286 were of good enough quality, which were further reduced to 220 to make each class balanced.
 As expected, the Vision Transformers have a considerable shape bias, while the convolutional model does not. Though one point of note is that
-ResNet still managed to score a 50.94 on the Shape Bias. This is considerably higher than the original Geirhos et al. (2019) paper. The reason for this
+ResNet still managed to score a 50.94 on the Shape Bias. This is considerably higher than the original \citet{geirhos2019texture} paper. The reason for this
 can be mostly likely presumed to be the biggest limitation of this experiment.
 
 That is that the images were filtered out manually. This introduced significant human bias in the process making the data unreliable.
@@ -678,37 +681,29 @@ For Domain Adaptation we see DAN with MMD beat DANN with adversarial alignment w
 perform much better than DAN-DG as well as being much more stable. Lastly, with our Open Set problem we saw GCSC significantly out perform, while both PROSER variants
 were unable to beat even vanilla
 
-% TODO: cite Geirhos 2019, Huang 2017, Ganin 2016, Long 2015/2018, Foret 2021, Vaze 2022, Zhou 2021 ... and fill the reference list
-\section{References}
-\label{sec:references}
+\small
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\normalsize
 
 \clearpage
 \appendix
 \section*{Appendix}
 \label{sec:appendix}
 
-\section{Deviations and Detailed Setup}
+\section{Deviations and Caveats}
+\label{app:deviations}
+\begin{tight}
 
-\subsection{Inductive Biases and Feature Representations}
+\item \textbf{Mirrors.} STL-10 verified byte-identical; PACS and CIFAR mirrors could only be checked by counts (class and domain totals).
+\item \textbf{Task 2 discriminator lr} $10^{-3}$ vs the specified $10^{-4}$ (adversarial methods only).
+\item \textbf{Task 3 DAN-DG headline} uses the bandwidth-gradient MMD, which differs from Task 2's DAN implementation; the as-specified collapse is documented. A like-for-like comparison would re-run Task 2's DAN with the same flag.
+\item \textbf{Task 3 separability probe} is class-weighted but not count-balanced across the three domains (manual: ``balanced features'').
+\item \textbf{Task 4} augmentations run on uint8 tensors, not PIL; crop and flip are identical, RandAugment resampling can differ in rounding. PROSER losses were checked against the paper's Eq.\ 4, 5 and 7, not against the authors' code.
+\item \textbf{Not done:} RPL (optional extension). All results are single-seed; with 500 images one image is 0.2 percentage points, so differences below about 1 point are not interpretable.
+\end{tight}
 
-\textbf{Models:}
-\begin{itemize}
-  \item \texttt{torchvision ResNet-50 with ResNet50\_Weights.IMAGENET1K\_V2;}
-  \item \texttt{torchvision ViT-B/16 with ViT\_B\_16\_Weights.IMAGENET1K\_V1;}
-  \item \texttt{OpenCLIP ViT-B-32 with pretrained='openai'.}
-\end{itemize}
-
-\textbf{Configuration:}
-\begin{itemize}
-  \item Seed: 6304
-  \item Optimizer: AdamW
-  \item Learning Rate: $10^{-3}$
-  \item Weight Decay: $10^{-4}$
-\end{itemize}
-
-
-
-\subsection{Table Notes}
+\section{Table Notes}
 
 \textbf{Table~\ref{tab:task1-compact}.} Top-1, macro-F1 (F1), $\Delta$ Top-1 and consistency (Cons.) in \%; Conf.\ is mean
   max confidence. $\Delta$ and Cons.\ are relative to each system's own clean predictions. CLIP is
