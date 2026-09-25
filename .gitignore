@@ -1,7 +1,7 @@
 # ATML course root — shared across PAs.
 # ---
 /Understanding
-ai*.md
+rough*.md
 # The shared virtualenv lives here and must never be committed.
 .venv/
 venv/
