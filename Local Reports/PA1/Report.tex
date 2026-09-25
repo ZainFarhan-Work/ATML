@@ -269,7 +269,7 @@ The data for Translation can be seen in Figure\ref{fig:translation}, from that i
 We measure the Cosine Similarity and t-SNE maps where relevant.
 
 \begin{table}[tb]
-  \caption{Cosine similarities - Expected Results}
+  \caption{Cosine similarities}
   \label{tab:representation-stability}
   \centering
   \footnotesize
@@ -299,13 +299,13 @@ structure, and the representation drifts more. This becomes more apparent in the
 
 \begin{figure}[tb]
   \centering
-  \begin{minipage}[b]{0.45\linewidth}
+  \begin{minipage}[b]{0.5\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figures/tsne_clip.png}
+    \includegraphics[width=\linewidth]{figures/tsne_clip_print.png}
     \captionof{figure}{CLIP t-SNE: Representations overlap except in Cue Conflict and Patch Shuffle}
     \label{fig:tsne-clip}
   \end{minipage}\hfill
-  \begin{minipage}[b]{0.42\linewidth}
+  \begin{minipage}[b]{0.44\linewidth}
     \centering
     \includegraphics[width=\linewidth]{figures/translation_consistency.png}
     \captionof{figure}{Translation.}
@@ -363,7 +363,7 @@ that does not necessarily mean an increase in performance.
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.85\linewidth]{figures/training_curves.png}
+  \includegraphics[width=0.91\linewidth]{figures/training_curves.png}
   \caption{Training curves}
   \label{fig:training-curves}
 \end{figure}
@@ -1113,7 +1113,7 @@ were unable to beat even vanilla
 \subsection{Post-Hoc Novelty Score}
 
 \begin{table}[H]
-  \caption{TODO: your caption and key take-away.}
+  \caption{Vanilla Thresholds}
   \label{tab:vanilla-threshold}
   \centering
   \footnotesize
