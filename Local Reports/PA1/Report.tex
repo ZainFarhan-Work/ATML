@@ -11,7 +11,7 @@
 % The authors should use one of these tracks.
 % Before accepting by the NeurIPS conference, select one of the options below.
 % 0. "default" for submission
-\usepackage{../PA1/neurips_2026}
+% \usepackage{../PA1/neurips_2026}
 % the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
 % 1. "main" option is used for the Main Track
 %  \usepackage[main]{neurips_2026}
@@ -26,7 +26,7 @@
 % 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
 %  \usepackage[dblblindworkshop]{neurips_2026}
 % 7. "education" option is used for the Education Track
-%  \usepackage[education]{neurips_2026}
+%  \usepackage[education]{../PA1/neurips_2026}
 
 
 % After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
@@ -46,7 +46,7 @@
 % For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
 % \workshoptitle{WORKSHOP TITLE}
 % 7. Education Track
-% \usepackage[education, final]{neurips_2026}
+\usepackage[education, final]{../PA1/neurips_2026}
 
 % "preprint" option is used for arXiv or other preprint submissions
  % \usepackage[preprint]{neurips_2026}
@@ -80,11 +80,12 @@
 }
 
 
-\renewcommand{\arraystretch}{0.9}
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{6pt plus 2pt minus 2pt}
-\setlength{\intextsep}{6pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{3pt}
+\renewcommand{\arraystretch}{0.85}
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\floatsep}{4pt plus 2pt minus 2pt}
+\setlength{\intextsep}{4pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{2pt}
+\setlength{\tabcolsep}{4pt}
 \newenvironment{tight}{\begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parsep}{0pt}\setlength{\topsep}{2pt}\setlength{\parskip}{0pt}}{\end{itemize}}
 \newcommand{\kv}[2]{\textbf{#1} & #2 \\[2pt]}
 \newenvironment{spec}{\par\smallskip\noindent\begin{longtable}{@{}p{0.19\linewidth}p{0.77\linewidth}@{}}\toprule}{\bottomrule\end{longtable}\par}
@@ -97,7 +98,7 @@
 \begin{abstract}
   In this research paper we will learn and investigate how various supervised learning models learn features. We will cover four path ways: Induction Biases, Domain Adaptation, Domain Generalization, and
   the Open Set Problem. The source code can be found on
-  \hyperlink{https://github.com/ZainFarhan-Work/ATML}{GitHub} (https://github.com/ZainFarhan-Work/ATML).
+  \href{https://github.com/ZainFarhan-Work/ATML}{GitHub} (https://github.com/ZainFarhan-Work/ATML).
 \end{abstract}
 
 % TODO: list the research questions of the four tasks here (manual: 'Introduction and research questions')
@@ -162,7 +163,7 @@ We first take some basic measurements as a baseline, we freeze the three classif
 macro-F1, and mean maximum confidence (Table~\ref{tab:clean-baseline}). We also do this for zero shot CLIP, we measure confidence from the softmax over scaled
 class similarities.
 
-\begin{table}[tb]
+\begin{table}[!htb]
   \caption{Overall Comprehensive Comparison}
   \label{tab:task1-compact}
   \centering
@@ -232,7 +233,7 @@ For this comparison alpha strength of 1 was required, as lower values did not tr
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=\linewidth]{figures/cue_conflict_examples.png}
+  \includegraphics[width=0.8\linewidth]{figures/cue_conflict_examples.png}
   \caption{Example Images}
   \label{fig:cue-conflicts}
 \end{figure}
@@ -260,13 +261,13 @@ We divided the images into 4x4 patches, and shuffled the patches. We feed the sh
 
 When we shuffle the images we destroy the global structure of the image, i.e. the shape. For Vision Transformers this is quite bad as they use the self attention mechanism and look at a global picture.
 Understandably, they suffer the most in accuracy. Convolutional networks however only look at the local area, making them much more resilient to this, further
-texture is preserved more, as each patch can act like a texture patch and we saw in table\ref{tab:shape-texture-both}, they are much more biased towards texture.
+texture is preserved more, as each patch can act like a texture patch and we saw in table~\ref{tab:shape-texture-both}, they are much more biased towards texture.
 
 The ViT-B and ResNet model are close in accuracy.
 
 One final thing of note is that CLIP performs noticeably worse than ViT, even though they share the visual encoder (as a Vision Transformer), the fact that both zero-shot and linear head land at the same number
 implies that its not the involvement of the text encoder in the prediction process. This suggest that contrastive learning (with the text encoder) during pre training or some other stage had some factor that made
-them more dependent factor.\footnote{We also saw more shape bias for them in table\ref{tab:shape-texture-both}, but it was not enough of a difference to warrant any conclusion}
+them more dependent factor.\footnote{We also saw more shape bias for them in table~\ref{tab:shape-texture-both}, but it was not enough of a difference to warrant any conclusion}
 
 % (T1-RQ2) translation + patch shuffle 
 The data for Translation can be seen in Figure\ref{fig:translation}, from that it is clear that the spatial order is much more vital to the model than simply moving the image.
@@ -306,13 +307,13 @@ structure, and the representation drifts more. This becomes more apparent in the
 
 \begin{figure}[tb]
   \centering
-  \begin{minipage}[b]{0.52\linewidth}
+  \begin{minipage}[b]{0.45\linewidth}
     \centering
     \includegraphics[width=\linewidth]{figures/tsne_clip.png}
     \captionof{figure}{CLIP t-SNE: Representations overlap except in Cue Conflict and Patch Shuffle}
     \label{fig:tsne-clip}
   \end{minipage}\hfill
-  \begin{minipage}[b]{0.46\linewidth}
+  \begin{minipage}[b]{0.42\linewidth}
     \centering
     \includegraphics[width=\linewidth]{figures/translation_consistency.png}
     \captionof{figure}{Translation.}
@@ -320,7 +321,7 @@ structure, and the representation drifts more. This becomes more apparent in the
   \end{minipage}
 \end{figure}
 
-The rest of the t-SNE diagrams (Figures\ref{fig:tsne-resnet} \ref{fig:tsne-vit} in the appendix\ref{app:tsne-figs}) agree with these results.
+The rest of the t-SNE diagrams (Figures~\ref{fig:tsne-resnet}, \ref{fig:tsne-vit} in the appendix~\ref{app:tsne-figs}) agree with these results.
 
 % (T1-RQ3,RQ4): prediction vs representation agreement/mismatch
 Overall, a representation changes doesn't always men a prediction change. FOr greyscale they all have roughly the same Norm, but there is a noticeable difference between model performance, with ViT being the most stable.
@@ -370,7 +371,7 @@ that does not necessarily mean an increase in performance.
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.92\linewidth]{figures/training_curves.png}
+  \includegraphics[width=0.85\linewidth]{figures/training_curves.png}
   \caption{Training curves}
   \label{fig:training-curves}
 \end{figure}
@@ -443,7 +444,7 @@ we can use Macro-F1 without target labels as a signal.
 \subsubsection{Controlled Design Study}
 
 \begin{table}[tb]
-  \caption{Control study - too high a $lambda$ collapses the model}
+  \caption{Control study - too high a $\lambda$ collapses the model}
   \label{tab:t2-study-compact}
   \centering
   \footnotesize
@@ -468,7 +469,7 @@ We had Source-only reach 94.91\% mean source accuracy against 61.59\% on Sketch,
 in target domain accuracy.
 \subsection{Domain Generalization}
 
-We ruse the same ERM Baseline as last time, refereed to in table\ref{tab:source-only} to be efficient with our compute resource.
+We ruse the same ERM Baseline as last time, refereed to in table~\ref{tab:source-only} to be efficient with our compute resource.
 
 \subsubsection{DAN-DG - Pairwise Source-Domain Alignment}
 
@@ -536,7 +537,7 @@ sources together, while DAN brings source and domain together. The final DAN-DG 
 We varied the $\rho$ values for SAM to find how far the trend extends
 
 \begin{table}[tb]
-  \caption{$\rho Values - Collapses on 0.1$}
+  \caption{$\rho$ Values - Collapses on 0.1}
   \label{tab:sam-study}
   \centering
   \footnotesize
@@ -660,13 +661,13 @@ traing enough to make significant progress, and the extra unkown class hampered 
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.55\linewidth]{figures/task4_roc.png}
+  \includegraphics[width=0.5\linewidth]{figures/task4_roc.png}
   \caption{ROC curve for Detector - Far always performs better}
   \label{fig:osr-roc}
 \end{figure}
 
 Detecting Far imges seems to be much easier throughout, most likely because they look so different, so it's easier for the model to tell them apart.
-In table\ref{tab:osr-failures} we can see that where as the worst Near are all wrongly classied at above 80\%, the far are all less than 60\%.
+In table~\ref{tab:osr-failures} we can see that where as the worst Near are all wrongly classied at above 80\%, the far are all less than 60\%.
 
 % TODO(T4-RQ1..4): plausible vs surprising failures + absorbing classes; what each score captures; GCSC near vs far; PROSER trade-off; AUROC vs 95% operating point
 We saw it is much easier to accept near vs far, 555 of 800 near unknowns are accepted (69\%), against 363 of 800 far (45\%). Pickup truck, bus, and wolf got accepted most for near,
