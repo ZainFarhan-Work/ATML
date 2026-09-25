@@ -193,8 +193,7 @@ We did two experiments with colour, the first we changed the images to greyscale
 % [moved to appendix, Task 1 / Color Bias: tab:grayscale]
 
 We can see that making the image greyscale results in a slight decrease in accuracy throughout. A more interesting observation is that there was no significant difference between Convolution and Vision Transformers, 
-though consistency is slightly higher for the Vision Transformer. CLIP had the most sever impact. Both of the readings are lower than either
-ResNet or ViT-B, and further zero-shot is the lowest.
+though consistency is slightly higher for the Vision Transformer. CLIP had the most sever impact. 
 
 The second experiment was with a Hue Shift of $40^{}$ deg.
 
@@ -229,7 +228,7 @@ For this comparison alpha strength of 1 was required. We get the following resul
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.8\linewidth]{figures/cue_conflict_examples.png}
+  \includegraphics[width=0.72\linewidth]{figures/cue_conflict_examples.png}
   \caption{Example Images}
   \label{fig:cue-conflicts}
 \end{figure}
@@ -363,7 +362,7 @@ that does not necessarily mean an increase in performance.
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.91\linewidth]{figures/training_curves.png}
+  \includegraphics[width=0.86\linewidth]{figures/training_curves.png}
   \caption{Training curves}
   \label{fig:training-curves}
 \end{figure}
@@ -510,7 +509,7 @@ We compare all our numbers against each other, with one interesting trend that w
 are not at all predictive of  sketch accuracy, difference between source being minimal with SAM and ERM only, but sketch accuracy is massively improved by SAM.
 
 We see that DAN-DG does the most work for Source Domain Separability which is what MMD targets, while SAM does not really touch for domain separability but does reduce sharpness the most as we want it to.
-SAM performs very well compared to DAN.
+
 
 
 % (T3-RQ1,RQ3,RQ4): mean/worst source vs Sketch; sharpness ranking vs Sketch ranking; DAN (Task 2) vs DAN-DG (Task 3) and its limits
@@ -522,7 +521,7 @@ sources together, while DAN brings source and target together. The final DAN-DG 
 
 \subsubsection{Controlled Desgin Study}
 
-We varied the $\rho$ values for SAM to find how far the trend extends
+
 
 \begin{table}[tb]
   \caption{$\rho$ Values - Collapses on 0.1}
