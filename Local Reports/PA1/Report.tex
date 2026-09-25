@@ -227,7 +227,7 @@ For this comparison alpha strength of 1 was required, as lower values did not tr
 \begin{figure}[tb]
   \centering
   \includegraphics[width=\linewidth]{figures/cue_conflict_examples.png}
-  \caption{TODO: your caption.}
+  \caption{Example Images}
   \label{fig:cue-conflicts}
 \end{figure}
 
@@ -242,11 +242,11 @@ Another notable observation is that for ViT and ResNet both, there most quantita
 Making the coverage very low, and limiting our ability to draw further conclusions from this data. This can again be contributed to the low quality of the data. The AdaIN
 implementation resulted in images with quite high distortion with our particular dataset, hampering the ability of the models to classify.
 
-% TODO(T1-RQ1): colour + cue-conflict jointly; how coverage limits the shape-bias claim (table shape-texture-both, fig cue-conflicts)
+% (T1-RQ1): colour + cue-conflict jointly
 Together it is clear that colour reliance is very low, and cue conflict shows us that shap and texture reliance is high by comparison.. However the low coverage makes
 further analyses and stronger claims difficult.
 
-\subsubsection{Patch Structure}
+\subsubsection{Patch Structure + Translation}
 
 We divided the images into 4x4 patches, and shuffled the patches. We feed the shuffled images back in the model to measure the metrics (Table~\ref{tab:patch-shuffle}).
 
@@ -262,7 +262,8 @@ One final thing of note is that CLIP performs noticeably worse than ViT, even th
 implies that its not the involvement of the text encoder in the prediction process. This suggest that contrastive learning (with the text encoder) during pre training or some other stage had some factor that made
 them more dependent factor.\footnote{We also saw more shape bias for them in table\ref{tab:shape-texture-both}, but it was not enough of a difference to warrant any conclusion}
 
-% TODO(T1-RQ2): translation + patch shuffle -> locality / global organisation / positional sensitivity (fig translation, table patch-shuffle)
+% (T1-RQ2) translation + patch shuffle 
+The data for Translation can be seen in Figure\ref{fig:translation}, from that it is clear that the spatial order is much more vital to the model than simply moving the image.
 \subsubsection{Representation Analysis}
 
 We have discussed most experiments now, but those mainly measured when the predictions changed and hence also changed the accuracy. But how the model sees and interprets the feature can change even if the
@@ -308,14 +309,17 @@ structure, and the representation drifts more. This becomes more apparent in the
   \begin{minipage}[b]{0.46\linewidth}
     \centering
     \includegraphics[width=\linewidth]{figures/translation_consistency.png}
-    \captionof{figure}{TODO: your caption.}
+    \captionof{figure}{Translation.}
     \label{fig:translation}
   \end{minipage}
 \end{figure}
 
 The rest of the t-SNE diagrams (Figures\ref{fig:tsne-resnet} \ref{fig:tsne-vit} in the appendix\ref{app:tsne-figs}) agree with these results.
 
-% TODO(T1-RQ3,RQ4): prediction vs representation agreement/mismatch; CLIP zero-shot vs head; architecture vs pretraining
+% (T1-RQ3,RQ4): prediction vs representation agreement/mismatch
+Overall, a representation changes doesn't always men a prediction change. FOr greyscale they all have roughly the same Norm, but there is a noticeable difference between model performance, with ViT being the most stable.
+We've seen that though model architecture is not the full story  as the two CLIP which are close still showed significant variance in results, it is still largely important, as ViT and CLIP were very shape biased, while CNN was not.
+
 \subsection{Unsupervised Domain Adaptation}
 
 \subsubsection{Source Only ERM}
@@ -361,7 +365,7 @@ that does not necessarily mean an increase in performance.
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.92\linewidth]{figures/training_curves.png}
-  \caption{TODO: your caption.}
+  \caption{Training curves}
   \label{fig:training-curves}
 \end{figure}
 
@@ -427,7 +431,9 @@ still separate the classes. And our best performance from CDAN barely shows any 
 Further data shows us that four classes show interesting behavior (Table~\ref{tab:t2-confusions}). Dog (+20.99 to +43.14) and Person (+25.00 to +38.13) improve under every method, while
 Elephant and Giraffe degrade under every method. It almost seems like the model is trading the improvement in two for the others, no one improved all four.
 
-% TODO(T2-RQ4): expectation for lambda before results; which lambda you could pick without target labels
+% (T2-RQ4): expectation for lambda before results
+As alignment rises, the data converges and separability is reduced while sketch accuracy is improved a little. moderate alignment is helpful but too much destroys class information.
+we can use Macro-F1 without target labels as a signal.
 \subsubsection{Controlled Design Study}
 
 \begin{table}[tb]
@@ -451,7 +457,9 @@ A higher $\lambda$ means a higher penalty for difference between the source doma
 to match the feature distributions. And we see exactly that for the first three rows, however $\lambda = 10$ completely collapses the model. F1 Mean on source alone is enough to disqualify 10 as optimial even without
 consulting target domain labels.
 
-% TODO(T2-RQ1..3): gap size + worst classes; separability vs target; CDAN vs marginal (fig training-curves)
+% (T2-RQ1..3): gap size + worst classes; separability vs target; CDAN vs marginal (fig training-curves)
+We had Source-only reach 94.91\% mean source accuracy against 61.59\% on Sketch, a drop of 33.3 points. We saw that lower separability does not mean better prediction on target domain. And we saw class conditioning massively help
+in target domain accuracy.
 \subsection{Domain Generalization}
 
 We ruse the same ERM Baseline as last time, refereed to in table\ref{tab:source-only} to be efficient with our compute resource.
@@ -466,11 +474,14 @@ We speculate that this happens due to the model too aggressively trying to align
 to ramp up the penalty term ($\lambda$) from zero to one as the model trains instead of just starting from one. The slow increase should allow
 us the model to stablise while still encouraging maximum alignment due to the increasing $\lambda$. Which brings us the following data (Table~\ref{tab:dandg-variants}).
 
-It is at least enough to stablise the the model, however we see little to no improvement in the target domain. So as a last resort we increase the Bandwidth Gradient to 1 in the RBF Kernel,
+However this also collapsed, was visible from source-side metrics alone with source F1 5.07, feature std 0, MMD 0 by epoch 4. So as a last resort we increase the Bandwidth Gradient to 1 in the RBF Kernel,
 this is perhaps the most direct way of telling the MMD Loss to not brind the domains too close, this finally results in a significant improvement to the sketch accuracy, however we can no longer
 compare these results to our earlier experiments.
 
 % TODO(T3-RQ2): DAN-DG separability drop vs Sketch gain; evidence of lost class information (per-class table t2-per-class)
+
+DAN-DG did make source domains less distinguishable but that was not tha main driver for improvement in sketch accuracy. The model completely collapsed with $\lambda = 1$.
+
 \subsubsection{SAM - Parameter-Space Stability}
 
 We now try to land on a flatter space of the loss, which should in theory be where the neighboring space all occupy similar features.
@@ -507,7 +518,13 @@ We see that DAN does the most work for Source Domain Separability which is what 
 SAM performs very well compared to DAN.
 
 
-% TODO(T3-RQ1,RQ3,RQ4): mean/worst source vs Sketch; sharpness ranking vs Sketch ranking; DAN (Task 2) vs DAN-DG (Task 3) and its limits
+% (T3-RQ1,RQ3,RQ4): mean/worst source vs Sketch; sharpness ranking vs Sketch ranking; DAN (Task 2) vs DAN-DG (Task 3) and its limits
+We now have also seen that mean source and and worst source are not good indicators or predictors of performance on the target domain (sketch). SAM lowers the sharpness the most, but that only
+partly tells us how well the model will perform on sketch, as we will see in the Controlled Design Study as well. It is also hard to tell whether target aware DAN or target free DAN is better.
+The best target-aware result (CDAN, 74.65) is essentially tied with the best target-free one (SAM, 74.12). DAN and DAN-DG have difference that makes the scenario less comparable. DAN-DG tries to bring
+sources together, while DAN brings source and domain together. The final DAN-DG also lets gradient flow through the kernel bandwidth, while DAN keeps it detached, so the kernels aren't identical.
+
+
 \subsubsection{Controlled Desgin Study}
 
 We varied the $\rho$ values for SAM to find how far the trend extends
@@ -535,6 +552,7 @@ with high $\rho$ values the bound extends so far that it starts to go to other r
 performance is completely destroyed which slowest that it can't be used as an accurate independent measure of performance for SAM.
 
 % TODO(T3 expectation before SAM rho study; per-class Sketch failures vs Task 2)
+Before this experiment we expected higher values of $\rho$ to look more broadly and perhaps find shallower areas. and the sharpness value did fall, but the collapse alongside it was unexpected.
 \subsection{Open-Set Recognition (OSR)}
 
 We first train a very traditional ResNet classifier, with ten classes to get a Vanilla score. The results are this (Table~\ref{tab:vanilla-baseline}).
@@ -645,6 +663,10 @@ Detecting Far imges seems to be much easier throughout, most likely because they
 In table\ref{tab:osr-failures} we can see that where as the worst Near are all wrongly classied at above 80\%, the far are all less than 60\%.
 
 % TODO(T4-RQ1..4): plausible vs surprising failures + absorbing classes; what each score captures; GCSC near vs far; PROSER trade-off; AUROC vs 95% operating point
+We saw it is much easier to accept near vs far, 555 of 800 near unknowns are accepted (69\%), against 363 of 800 far (45\%). Pickup truck, bus, and wolf got accepted most for near,
+while wardrobe, mushrooms, and sunflower for far. pickup -> automobile, bus -> truck, tractor -> truck, wolf -> dog were plausible failures while Wardrobe -> cat, mushroom -> cat and sunflower -> bird were surprising.
+MSP is normalised confidence and discards logit magnitude. MLS and Energy keep magnitude. Mahalanobis uses feature-space distance, so it is the most independent signal.
+MLS and Energy were close to each other, and MSP were close to both, with Mahalanobis being furthest. We saw very good improvements from GCSC, while little difference from PROSER.
 \section{Conclusions}
 \label{sec:conclusion}
 

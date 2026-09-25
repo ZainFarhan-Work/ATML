@@ -44,6 +44,8 @@ for axis, title in zip(axes, ["Task 2: source classification loss", "Task 2: ali
         axis.spines[side].set_visible(False)
 axes[0].legend(fontsize=5.2, frameon=False)
 axes[2].legend(fontsize=5.2, frameon=False)
+axes[1].legend(handles=axes[0].get_legend_handles_labels()[0], labels=axes[0].get_legend_handles_labels()[1], fontsize=5.2, frameon=False, loc="center right")
+axes[3].legend(handles=axes[2].get_legend_handles_labels()[0][:2], labels=axes[2].get_legend_handles_labels()[1][:2], fontsize=5.2, frameon=False, loc="upper right")
 fig.tight_layout(pad=0.4, w_pad=0.7)
 fig.savefig(OUT, dpi=250, facecolor="white")
 print(f"wrote {OUT}")

@@ -26,6 +26,7 @@ from run_shape_texture import ConflictSet, balanced, predictions_for  # noqa: E4
 RESULTS = Path(__file__).resolve().parents[1] / "results"
 FIGURES = RESULTS / "figures"
 OUT = Path(__file__).resolve().parents[3] / "Local Reports" / "PA1" / "figures"
+PICK = {"all systems: neither": 2}  # airplane-cat_31: hand-picked for legibility; the rest use the first in sorted order
 SYSTEMS = ("ResNet-50", "ViT-B/16", "CLIP head", "CLIP zero-shot")
 COLORS = {"clip + linear head": "#2a78d6", "clip zero-shot": "#eb6834",
           "resnet50 + linear head": "#1baf7a", "vit_b_16 + linear head": "#e8a000"}
@@ -66,8 +67,9 @@ def cue_conflict_examples():
     for title, mask in rules:
         hits = frame[mask]
         print(f"{title}: {len(hits)} candidates")
+        print(hits[["stem", "content_class", "style_class"]].head(8).to_string())
         if len(hits):
-            i = hits.index[0]
+            i = hits.index[PICK.get(title, 0)]
             rows.append((title, i))
 
     fig, axes = plt.subplots(1, len(rows), figsize=(5.4, 2.2))
