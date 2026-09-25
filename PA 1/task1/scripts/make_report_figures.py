@@ -98,24 +98,50 @@ def cue_conflict_examples():
 def translation_panel():
     table = pd.read_csv(RESULTS / "translation.csv")
     table = table.groupby(["system", "displacement"], as_index=False)[["top1", "consistency"]].mean()
-    fig, axis = plt.subplots(figsize=(2.6, 2.1))
+    fig, axis = plt.subplots(figsize=(2.2, 1.95))
     for system, group in table.groupby("system"):
         group = group.sort_values("displacement")
-        axis.plot(group["displacement"], group["consistency"], marker="o", markersize=3.5, linewidth=1.6,
+        axis.plot(group["displacement"], group["consistency"], marker="o", markersize=3, linewidth=1.4,
                   color=COLORS[system], label=LABELS[system])
     axis.set_xticks([0, 8, 16, 32])
-    axis.set_xlabel("displacement (px)", fontsize=7)
-    axis.set_ylabel("prediction consistency (%)", fontsize=7)
-    axis.tick_params(labelsize=6.5)
+    axis.set_ylim(95.0, 100.4)
+    axis.set_yticks([95, 96, 97, 98, 99, 100])
+    axis.set_xlabel("displacement (px)", fontsize=6.5)
+    axis.set_ylabel("prediction consistency (%)", fontsize=6.5)
+    axis.tick_params(labelsize=6)
     axis.grid(alpha=0.25)
     for side in ("top", "right"):
         axis.spines[side].set_visible(False)
-    axis.set_ylim(96.3, 102.2)
-    axis.legend(fontsize=5.6, frameon=False, loc="upper right", ncol=2, columnspacing=0.8, handlelength=1.2)
+    axis.legend(fontsize=5.2, frameon=False, loc="lower left", ncol=2, columnspacing=0.8, handlelength=1.2)
     fig.tight_layout(pad=0.4)
-    fig.savefig(FIGURES / "translation_consistency.png", dpi=250, facecolor="white")
+    fig.savefig(FIGURES / "translation_consistency.png", dpi=300, facecolor="white")
+
+
+def tsne_print():
+    import numpy as np
+    import seaborn as sns
+    z = np.load(Path(__file__).resolve().parents[1] / "cache" / "tsne_clip.npz", allow_pickle=True)
+    points, condition, labels = z["points"], z["condition"], z["labels"]
+    classes = CLASSES
+    colors = sns.color_palette("colorblind", len(classes))
+    names = [n for n in dict.fromkeys(condition) if n != "clean"]
+    fig, axes = plt.subplots(2, 2, figsize=(2.75, 2.6))
+    clean = condition == "clean"
+    for axis, name in zip(axes.ravel(), names):
+        axis.scatter(points[clean, 0], points[clean, 1], c=[colors[i] for i in labels[clean]], s=3.5, marker="o", alpha=0.4, linewidths=0)
+        m = condition == name
+        axis.scatter(points[m, 0], points[m, 1], c=[colors[i] for i in labels[m]], s=5, marker="x", alpha=0.9, linewidths=0.5)
+        axis.set_title(f"{name} (x)", fontsize=6, pad=2)
+        axis.set_xticks([]); axis.set_yticks([])
+        for side in axis.spines.values():
+            side.set_color("#898781"); side.set_linewidth(0.5)
+    handles = [plt.Line2D([], [], marker="o", linestyle="", markersize=3, color=colors[i], label=n) for i, n in enumerate(classes)]
+    fig.legend(handles=handles, loc="lower center", ncol=5, frameon=False, fontsize=5, handletextpad=0.1, columnspacing=0.7)
+    fig.tight_layout(rect=(0, 0.11, 1, 1), pad=0.3, h_pad=0.6, w_pad=0.4)
+    fig.savefig(FIGURES / "tsne_clip_print.png", dpi=300, facecolor="white")
 
 
 if __name__ == "__main__":
     translation_panel()
+    tsne_print()
     cue_conflict_examples()

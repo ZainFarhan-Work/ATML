@@ -160,8 +160,7 @@ All experiments use seed 6304. All deviations from the manual are in Appendix~\r
 \subsection{Inductive Biases and Feature Representations}
 
 We first take some basic measurements as a baseline, we freeze the three classifier heads and measure top-1 accuracy,
-macro-F1, and mean maximum confidence (Table~\ref{tab:clean-baseline}). We also do this for zero shot CLIP, we measure confidence from the softmax over scaled
-class similarities.
+macro-F1, and mean maximum confidence (Table~\ref{tab:clean-baseline}). We also do this for zero shot CLIP.
 
 \begin{table}[!htb]
   \caption{Overall Comprehensive Comparison}
@@ -185,9 +184,7 @@ class similarities.
 % [moved to appendix, Task 1 / Clean Baseline: tab:clean-baseline]
 
 All the models perform well as a baseline, this maybe a limitation of the STL-10 dataset, as its distinct classes would be easier to classify.
-It should also be noted that the CLIP Max Mean is low because it uses Cosine similarity in training, and the L-2 norm forces the magnitude to be 1.
-So when attached with a linear head and no compensation, the value comes off as low. It does not mean it is lower in confidence than other models,
-just that rows can't be compared the magnitude lower, not because it is less confident than others
+
 
 \subsubsection{Color Bias}
 
@@ -199,8 +196,7 @@ We can see that making the image greyscale results in a slight decrease in accur
 though consistency is slightly higher for the Vision Transformer. CLIP had the most sever impact. Both of the readings are lower than either
 ResNet or ViT-B, and further zero-shot is the lowest.
 
-The second experiment was with a Hue Shift of $40^{}$ deg. A limitation of this is that a hue shift will only have a good effect on well
-saturated images. On less saturated images the change is very minimal, making the result less significant.
+The second experiment was with a Hue Shift of $40^{}$ deg.
 
 % [moved to appendix, Task 1 / Color Bias: tab:hue40]
 
@@ -210,7 +206,7 @@ much more in line with other models.
 
 \subsubsection{Shape vs. Texture}
 
-For this comparison alpha strength of 1 was required, as lower values did not transfer texture well enough. We get the following results:
+For this comparison alpha strength of 1 was required. We get the following results:
 
 \begin{table}[tb]
   \caption{Shape vs Texture: Convoutional models are not shape biased.}
@@ -246,8 +242,7 @@ can be mostly likely presumed to be the biggest limitation of this experiment.
 That is that the images were filtered out manually. This introduced significant human bias in the process making the data unreliable.
 
 Another notable observation is that for ViT and ResNet both, there most quantitative category is neither shape nor texture, and CLIP barely has more shape classified images.
-Making the coverage very low, and limiting our ability to draw further conclusions from this data. This can again be contributed to the low quality of the data. The AdaIN
-implementation resulted in images with quite high distortion with our particular dataset, hampering the ability of the models to classify.
+Making the coverage very low, and limiting our ability to draw further conclusions from this data.
 
 % (T1-RQ1): colour + cue-conflict jointly
 Together it is clear that colour reliance is very low, and cue conflict shows us that shap and texture reliance is high by comparison.. However the low coverage makes
@@ -259,9 +254,7 @@ We divided the images into 4x4 patches, and shuffled the patches. We feed the sh
 
 % [moved to appendix, Task 1 / Patch Structure: tab:patch-shuffle]
 
-When we shuffle the images we destroy the global structure of the image, i.e. the shape. For Vision Transformers this is quite bad as they use the self attention mechanism and look at a global picture.
-Understandably, they suffer the most in accuracy. Convolutional networks however only look at the local area, making them much more resilient to this, further
-texture is preserved more, as each patch can act like a texture patch and we saw in table~\ref{tab:shape-texture-both}, they are much more biased towards texture.
+
 
 The ViT-B and ResNet model are close in accuracy.
 
@@ -273,8 +266,7 @@ them more dependent factor.\footnote{We also saw more shape bias for them in tab
 The data for Translation can be seen in Figure\ref{fig:translation}, from that it is clear that the spatial order is much more vital to the model than simply moving the image.
 \subsubsection{Representation Analysis}
 
-We have discussed most experiments now, but those mainly measured when the predictions changed and hence also changed the accuracy. But how the model sees and interprets the feature can change even if the
-prediction didn't. We measure the Cosine Similarity and t-SNE maps where relevant.
+We measure the Cosine Similarity and t-SNE maps where relevant.
 
 \begin{table}[tb]
   \caption{Cosine similarities - Expected Results}
@@ -301,7 +293,7 @@ prediction didn't. We measure the Cosine Similarity and t-SNE maps where relevan
 In terms of grayscale and translation we can see the Norm is rather high. This is consistent with our earlier hypothesis that
 models don't look at colour for classification.
 
-In Patch shuffling the values a bit lower (around 0.6), which is to be expected as the global structure is destroyed. What is more interesting is that CLIP and ViT show a large difference despite
+In Patch shuffling the values a bit lower (around 0.6). What is more interesting is that CLIP and ViT show a large difference despite
 them both having a Vision Transformer. One plausible explanation is that since CLIP's tokens are twice as large as ViT, they are more dependent on global
 structure, and the representation drifts more. This becomes more apparent in the following diagram.
 
@@ -336,7 +328,7 @@ We first train both the model and the classifier hear on the source domains usin
 % [moved to appendix, Task 2 / Source Only ERM: tab:source-only]
 
 As we can see in source only statistics, the accuracy on our source domains is very good, but when ran on a unknown domain (for us that is sketch) we notice a massive accuracy drop.
-compared with the mean it is a -33 \% drop, this is the main figure we try to lower in these experiments.
+compared with the mean it is a -33 \% drop.
 
 % [moved to appendix, Task 2 / Source Only ERM: tab:source-only-per-class]
 
@@ -378,13 +370,12 @@ that does not necessarily mean an increase in performance.
 
 \subsubsection{CDAN - Class-Conditional Adversarial Alignment}
 
-To improve the scores from before we use the values of the prediction as well, we do a cross product with the latent and feed that to the discriminator.
+
 
 % [moved to appendix, Task 2 / CDAN - Class-Conditional Adversarial Alignment: tab:cdan]
 
 The performance on the source only metric stays the same, but the accuracy on sketch images received a significant improvement (Table~\ref{tab:cdan}).
-Meaning that even soft information about the final prediction was very helpful to the discriminator. Improving its performance which
-improved the backbone to more aggressively compete with it. However, it was not lower domain separability that did this, as domain separability
+However, it was not lower domain separability that did this, as domain separability
 essentially remained the same.
 
 \subsubsection{Common Evaluation and Alignment Diagnostic}
@@ -408,8 +399,7 @@ essentially remained the same.
   \end{tabular}
 \end{table}
 
-We would assume that bringing the domains closer and making them indistinguishable would be key, as the overlapping elements between the target domain and
-source domains would come into play. However aside from MMD which tries to directly to do this with the Loss function, a freshly trained logistical regressor can
+We would assume that bringing the domains closer and making them indistinguishable would be key. However aside from MMD which tries to directly to do this with the Loss function, a freshly trained logistical regressor can
 still separate the classes. And our best performance from CDAN barely shows any change, implying it might not be the most key factor.
 
 \begin{table}[tb]
@@ -460,8 +450,7 @@ we can use Macro-F1 without target labels as a signal.
   \end{tabular}
 \end{table}
 
-A higher $\lambda$ means a higher penalty for difference between the source domain feature distribution, so increasing it should mean the model more aggressively tries
-to match the feature distributions. And we see exactly that for the first three rows, however $\lambda = 10$ completely collapses the model. F1 Mean on source alone is enough to disqualify 10 as optimial even without
+A higher $\lambda$ means a higher penalty for difference between the source domain feature distribution.  $\lambda = 10$ completely collapses the model. F1 Mean on source alone is enough to disqualify 10 as optimial even without
 consulting target domain labels.
 
 % (T2-RQ1..3): gap size + worst classes; separability vs target; CDAN vs marginal (fig training-curves)
@@ -469,7 +458,7 @@ We had Source-only reach 94.91\% mean source accuracy against 61.59\% on Sketch,
 in target domain accuracy.
 \subsection{Domain Generalization}
 
-We ruse the same ERM Baseline as last time, refereed to in table~\ref{tab:source-only} to be efficient with our compute resource.
+We ruse the same ERM Baseline as last time, refereed to in table~\ref{tab:source-only}.
 
 \subsubsection{DAN-DG - Pairwise Source-Domain Alignment}
 
@@ -478,11 +467,10 @@ In our initial configuration, which matched task with DAN for the sake of compar
 % [moved to appendix, Task 3 / DAN-DG - Pairwise Source-Domain Alignment: tab:dandg]
 
 We speculate that this happens due to the model too aggressively trying to align the source domains (Table~\ref{tab:dandg-collapse}). So to remedy this we try
-to ramp up the penalty term ($\lambda$) from zero to one as the model trains instead of just starting from one. The slow increase should allow
-us the model to stablise while still encouraging maximum alignment due to the increasing $\lambda$. Which brings us the following data (Table~\ref{tab:dandg-variants}).
+to ramp up the penalty term ($\lambda$) from zero to one as the model trains instead of just starting from one (Table~\ref{tab:dandg-variants}).
 
 However this also collapsed, was visible from source-side metrics alone with source F1 5.07, feature std 0, MMD 0 by epoch 4. So as a last resort we increase the Bandwidth Gradient to 1 in the RBF Kernel,
-this is perhaps the most direct way of telling the MMD Loss to not brind the domains too close, this finally results in a significant improvement to the sketch accuracy, however we can no longer
+this finally results in a significant improvement to the sketch accuracy, however we can no longer
 compare these results to our earlier experiments.
 
 % TODO(T3-RQ2): DAN-DG separability drop vs Sketch gain; evidence of lost class information (per-class table t2-per-class)
@@ -491,7 +479,7 @@ DAN-DG did make source domains less distinguishable but that was not tha main dr
 
 \subsubsection{SAM - Parameter-Space Stability}
 
-We now try to land on a flatter space of the loss, which should in theory be where the neighboring space all occupy similar features.
+
 
 % [moved to appendix, Task 3 / SAM - Parameter-Space Stability: tab:sam]
 
@@ -527,7 +515,7 @@ SAM performs very well compared to DAN.
 
 % (T3-RQ1,RQ3,RQ4): mean/worst source vs Sketch; sharpness ranking vs Sketch ranking; DAN (Task 2) vs DAN-DG (Task 3) and its limits
 We now have also seen that mean source and and worst source are not good indicators or predictors of performance on the target domain (sketch). SAM lowers the sharpness the most, but that only
-partly tells us how well the model will perform on sketch, as we will see in the Controlled Design Study as well. It is also hard to tell whether target aware DAN or target free DAN is better.
+partly tells us how well the model will perform on sketch. It is also hard to tell whether target aware DAN or target free DAN is better.
 The best target-aware result (CDAN, 74.65) is essentially tied with the best target-free one (SAM, 74.12). DAN and DAN-DG have difference that makes the scenario less comparable. DAN-DG tries to bring
 sources together, while DAN brings source and domain together. The final DAN-DG also lets gradient flow through the kernel bandwidth, while DAN keeps it detached, so the kernels aren't identical.
 
@@ -555,7 +543,7 @@ We varied the $\rho$ values for SAM to find how far the trend extends
   \end{tabular}
 \end{table}
 
-with high $\rho$ values the bound extends so far that it starts to go to other regions as well. Sharp still increases as the shallowed are becomes a subset, but
+Sharp still increases as the shallowed are becomes a subset, but
 performance is completely destroyed which slowest that it can't be used as an accurate independent measure of performance for SAM.
 
 % TODO(T3 expectation before SAM rho study; per-class Sketch failures vs Task 2)
@@ -572,8 +560,7 @@ We froze the Vanilla Model, and measured different unknowness scores on it (Tabl
 
 \subsubsection{GCSC - Strong Closed-Set Classifier + MLS}
 
-Training our model extremely well on a closed set should make it so that it'll be able to differentiate unknowns regardless.
-We achieve this by training on random positive augmentations.
+
 
 % [moved to appendix, Task 4 / GCSC - Strong Closed-Set Classifier + MLS: tab:gcsc-closed-set]
 
@@ -583,7 +570,7 @@ For CIFAR 10 we see that both validation and test accuracy increase slightly (Ta
 
 \subsubsection{PROSER - Classifier and Data Placeholders}
 
-We make a new class by taking latents of two classes and doing a inner join to get their middle, this creates a new unkown class.
+
 
 % [moved to appendix, Task 4 / PROSER - Classifier and Data Placeholders: tab:proser-closed-set]
 
@@ -666,7 +653,7 @@ traing enough to make significant progress, and the extra unkown class hampered 
   \label{fig:osr-roc}
 \end{figure}
 
-Detecting Far imges seems to be much easier throughout, most likely because they look so different, so it's easier for the model to tell them apart.
+Detecting Far imges seems to be much easier throughout.
 In table~\ref{tab:osr-failures} we can see that where as the worst Near are all wrongly classied at above 80\%, the far are all less than 60\%.
 
 % TODO(T4-RQ1..4): plausible vs surprising failures + absorbing classes; what each score captures; GCSC near vs far; PROSER trade-off; AUROC vs 95% operating point

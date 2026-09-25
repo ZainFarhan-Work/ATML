@@ -26,26 +26,26 @@ def series(task, name, key):
 T2 = [("source_only", "Source-only", "#7a7a7a"), ("dan", "DAN", "#eb6834"), ("dann", "DANN", "#1baf7a"), ("cdan", "CDAN", "#e8a000")]
 T3 = [("dan_dg", r"DAN-DG (collapsed)", "#c0392b"), ("dan_dg_bwgrad", "DAN-DG (final)", "#2a78d6"), ("sam", "SAM", "#1baf7a")]
 
-fig, axes = plt.subplots(1, 4, figsize=(7.4, 1.75))
+fig, axes = plt.subplots(1, 4, figsize=(5.0, 1.75))
 for name, label, color in T2:
-    axes[0].plot(*series("task2", name, "cls_loss"), color=color, linewidth=1.3, marker="o", markersize=2, label=label)
-    axes[1].plot(*series("task2", name, "align_loss"), color=color, linewidth=1.3, marker="o", markersize=2)
+    axes[0].plot(*series("task2", name, "cls_loss"), color=color, linewidth=1.1, marker="o", markersize=1.6, label=label)
+    axes[1].plot(*series("task2", name, "align_loss"), color=color, linewidth=1.1, marker="o", markersize=1.6)
 for name, label, color in T3:
-    axes[2].plot(*series("task3", name, "cls_loss"), color=color, linewidth=1.3, marker="o", markersize=2, label=label)
+    axes[2].plot(*series("task3", name, "cls_loss"), color=color, linewidth=1.1, marker="o", markersize=1.6, label=label)
     if name != "sam":
-        axes[3].plot(*series("task3", name, "align_loss"), color=color, linewidth=1.3, marker="o", markersize=2)
+        axes[3].plot(*series("task3", name, "align_loss"), color=color, linewidth=1.1, marker="o", markersize=1.6)
 for axis, title in zip(axes, ["Task 2: source classification loss", "Task 2: alignment / domain loss",
                               "Task 3: source classification loss", "Task 3: MMD penalty"]):
-    axis.set_title(title, fontsize=6.3)
-    axis.set_xlabel("epoch", fontsize=6)
-    axis.tick_params(labelsize=5.5)
+    axis.set_title(title, fontsize=5.6)
+    axis.set_xlabel("epoch", fontsize=5.5)
+    axis.tick_params(labelsize=5)
     axis.grid(alpha=0.25)
     for side in ("top", "right"):
         axis.spines[side].set_visible(False)
-axes[0].legend(fontsize=5.2, frameon=False)
-axes[2].legend(fontsize=5.2, frameon=False)
-axes[1].legend(handles=axes[0].get_legend_handles_labels()[0], labels=axes[0].get_legend_handles_labels()[1], fontsize=5.2, frameon=False, loc="center right")
-axes[3].legend(handles=axes[2].get_legend_handles_labels()[0][:2], labels=axes[2].get_legend_handles_labels()[1][:2], fontsize=5.2, frameon=False, loc="upper right")
-fig.tight_layout(pad=0.4, w_pad=0.7)
-fig.savefig(OUT, dpi=250, facecolor="white")
+axes[0].legend(fontsize=4.6, frameon=False)
+axes[2].legend(fontsize=4.6, frameon=False)
+axes[1].legend(handles=axes[0].get_legend_handles_labels()[0], labels=axes[0].get_legend_handles_labels()[1], fontsize=4.6, frameon=False, loc="center right")
+axes[3].legend(handles=axes[2].get_legend_handles_labels()[0][:2], labels=axes[2].get_legend_handles_labels()[1][:2], fontsize=4.6, frameon=False, loc="upper right")
+fig.tight_layout(pad=0.3, w_pad=0.5)
+fig.savefig(OUT, dpi=300, facecolor="white")
 print(f"wrote {OUT}")
