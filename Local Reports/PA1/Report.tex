@@ -701,7 +701,6 @@ were unable to beat even vanilla
 \item \textbf{Task 3 DAN-DG headline} uses the bandwidth-gradient MMD, which differs from Task 2's DAN implementation; the as-specified collapse is documented. A like-for-like comparison would re-run Task 2's DAN with the same flag.
 \item \textbf{Task 3 separability probe} is class-weighted but not count-balanced across the three domains (manual: ``balanced features'').
 \item \textbf{Task 4} augmentations run on uint8 tensors, not PIL; crop and flip are identical, RandAugment resampling can differ in rounding. PROSER losses were checked against the paper's Eq.\ 4, 5 and 7, not against the authors' code.
-\item \textbf{Not done:} RPL (optional extension). All results are single-seed; with 500 images one image is 0.2 percentage points, so differences below about 1 point are not interpretable.
 \end{tight}
 
 \section{Table Notes}
