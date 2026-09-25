@@ -106,7 +106,7 @@
 \label{sec:intro}
 
 First, we will see the study the influence of Inductive Biases and Feature Representations, our goal here is to see the influence of model architecture.
-By comparing the metrics of four well known and standard models (ResNet-50, ViT-B, CLIP). We will first perform a baseline metric on all of them, and then
+By comparing the metrics of three well known and standard models (ResNet-50, ViT-B, CLIP). We will first perform a baseline metric on all of them, and then
 perform 5 different experiments. Colour Bias, Grey Scale, Shape vs Texture, and Translation.
 
 Then we will see Domain Adaptation and Domain Generalization, where we study DAN with MMD, DANN - Adversarial Alignment, CDAN, SAM, and DAN-DG. For the open set problem we will
@@ -294,7 +294,7 @@ In terms of grayscale and translation we can see the Norm is rather high. This i
 models don't look at colour for classification.
 
 In Patch shuffling the values a bit lower (around 0.6). What is more interesting is that CLIP and ViT show a large difference despite
-them both having a Vision Transformer. One plausible explanation is that since CLIP's tokens are twice as large as ViT, they are more dependent on global
+them both having a Vision Transformer. One plausible explanation is that since CLIP's tokens are twice as wide as ViT, they are more dependent on global
 structure, and the representation drifts more. This becomes more apparent in the following diagram.
 
 \begin{figure}[tb]
@@ -317,7 +317,7 @@ The rest of the t-SNE diagrams (Figures~\ref{fig:tsne-resnet}, \ref{fig:tsne-vit
 
 % (T1-RQ3,RQ4): prediction vs representation agreement/mismatch
 Overall, a representation changes doesn't always men a prediction change. FOr greyscale they all have roughly the same Norm, but there is a noticeable difference between model performance, with ViT being the most stable.
-We've seen that though model architecture is not the full story  as the two CLIP which are close still showed significant variance in results, it is still largely important, as ViT and CLIP were very shape biased, while CNN was not.
+We've seen that though model architecture is not the full story  as the two CLIP which are close still showed some variance in results (shape bias is 90.6 vs 94.4), it is still largely important, as ViT and CLIP were very shape biased, while CNN was not.
 
 \subsection{Unsupervised Domain Adaptation}
 
@@ -328,12 +328,12 @@ We first train both the model and the classifier hear on the source domains usin
 % [moved to appendix, Task 2 / Source Only ERM: tab:source-only]
 
 As we can see in source only statistics, the accuracy on our source domains is very good, but when ran on a unknown domain (for us that is sketch) we notice a massive accuracy drop.
-compared with the mean it is a -33 \% drop.
+compared with the mean it is a -33 points drop.
 
 % [moved to appendix, Task 2 / Source Only ERM: tab:source-only-per-class]
 
 when we see the by class accuracy on the target domain (Table~\ref{tab:source-only-per-class}), dog performs worst while elephant performs best.
-Dog is the largest class in the sketch data, we found dog's 333 most common errors go to elephant, 167 to giraffe. It is probable it is not confusing
+Dog is one of the largest class in the sketch data, we found dog's 333 most common errors go to elephant, 167 to giraffe. It is probable it is not confusing
 animals and objects at least, it is confused within animal classes.
 
 \subsubsection{DAN - MMD Alignment}
@@ -400,7 +400,7 @@ essentially remained the same.
 \end{table}
 
 We would assume that bringing the domains closer and making them indistinguishable would be key. However aside from MMD which tries to directly to do this with the Loss function, a freshly trained logistical regressor can
-still separate the classes. And our best performance from CDAN barely shows any change, implying it might not be the most key factor.
+still separate the domains. And our best performance from CDAN barely shows any change, implying it might not be the most key factor.
 
 \begin{table}[tb]
   \caption{Per Class Comparison: Four classes share a trend}
@@ -425,8 +425,8 @@ still separate the classes. And our best performance from CDAN barely shows any 
   \end{tabular}
 \end{table}
 
-Further data shows us that four classes show interesting behavior (Table~\ref{tab:t2-confusions}). Dog (+20.99 to +43.14) and Person (+25.00 to +38.13) improve under every method, while
-Elephant and Giraffe degrade under every method. It almost seems like the model is trading the improvement in two for the others, no one improved all four.
+Further data shows us that four classes show interesting behavior (Table~\ref{tab:t2-confusions}). Dog (+20.99 to +43.14) and Person (+25.00 to +38.13) improve, while
+Elephant and Giraffe degrade. It almost seems like the model is trading the improvement in two for the others, no one improved all four.
 
 % (T2-RQ4): expectation for lambda before results
 As alignment rises, the data converges and separability is reduced while sketch accuracy is improved a little. moderate alignment is helpful but too much destroys class information.
@@ -469,7 +469,7 @@ In our initial configuration, which matched task with DAN for the sake of compar
 We speculate that this happens due to the model too aggressively trying to align the source domains (Table~\ref{tab:dandg-collapse}). So to remedy this we try
 to ramp up the penalty term ($\lambda$) from zero to one as the model trains instead of just starting from one (Table~\ref{tab:dandg-variants}).
 
-However this also collapsed, was visible from source-side metrics alone with source F1 5.07, feature std 0, MMD 0 by epoch 4. So as a last resort we increase the Bandwidth Gradient to 1 in the RBF Kernel,
+However this didn't work, that was visible from source-side metrics alone with source F1 5.07, feature std 0, MMD 0 by epoch 4. So as a last resort we increase the Bandwidth Gradient to 1 in the RBF Kernel,
 this finally results in a significant improvement to the sketch accuracy, however we can no longer
 compare these results to our earlier experiments.
 
@@ -509,7 +509,7 @@ This worked much better and cleaner than our DAN-DG we see a obvious improvement
 We compare all our numbers against each other, with one interesting trend that was also in Domain Adaptation, which that accuracies on source domains
 are not at all predictive of  sketch accuracy, difference between source being minimal with SAM and ERM only, but sketch accuracy is massively improved by SAM.
 
-We see that DAN does the most work for Source Domain Separability which is what MMD targets, while SAM does not really touch for domain separability but does reduce sharpness the most as we want it to.
+We see that DAN-DG does the most work for Source Domain Separability which is what MMD targets, while SAM does not really touch for domain separability but does reduce sharpness the most as we want it to.
 SAM performs very well compared to DAN.
 
 
@@ -517,7 +517,7 @@ SAM performs very well compared to DAN.
 We now have also seen that mean source and and worst source are not good indicators or predictors of performance on the target domain (sketch). SAM lowers the sharpness the most, but that only
 partly tells us how well the model will perform on sketch. It is also hard to tell whether target aware DAN or target free DAN is better.
 The best target-aware result (CDAN, 74.65) is essentially tied with the best target-free one (SAM, 74.12). DAN and DAN-DG have difference that makes the scenario less comparable. DAN-DG tries to bring
-sources together, while DAN brings source and domain together. The final DAN-DG also lets gradient flow through the kernel bandwidth, while DAN keeps it detached, so the kernels aren't identical.
+sources together, while DAN brings source and target together. The final DAN-DG also lets gradient flow through the kernel bandwidth, while DAN keeps it detached, so the kernels aren't identical.
 
 
 \subsubsection{Controlled Desgin Study}
@@ -543,7 +543,7 @@ We varied the $\rho$ values for SAM to find how far the trend extends
   \end{tabular}
 \end{table}
 
-Sharp still increases as the shallowed are becomes a subset, but
+Sharp still decreases as the shallowed are becomes a subset, but
 performance is completely destroyed which slowest that it can't be used as an accurate independent measure of performance for SAM.
 
 % TODO(T3 expectation before SAM rho study; per-class Sketch failures vs Task 2)
@@ -574,7 +574,7 @@ For CIFAR 10 we see that both validation and test accuracy increase slightly (Ta
 
 % [moved to appendix, Task 4 / PROSER - Classifier and Data Placeholders: tab:proser-closed-set]
 
-On the CIFAR-10 data set we see similar levels of performance (Table~\ref{tab:proser-closed-set}), though we get there earlier, the same trend continues for Unkown classifications (Table~\ref{tab:proser-auroc}).
+On the CIFAR-10 data set we see similar levels of performance (Table~\ref{tab:proser-closed-set}), the data can be seen in the appendix. (Table~\ref{tab:proser-auroc}).
 
 % [moved to appendix, Task 4 / PROSER - Classifier and Data Placeholders: tab:proser-auroc]
 
@@ -660,13 +660,13 @@ In table~\ref{tab:osr-failures} we can see that where as the worst Near are all 
 We saw it is much easier to accept near vs far, 555 of 800 near unknowns are accepted (69\%), against 363 of 800 far (45\%). Pickup truck, bus, and wolf got accepted most for near,
 while wardrobe, mushrooms, and sunflower for far. pickup -> automobile, bus -> truck, tractor -> truck, wolf -> dog were plausible failures while Wardrobe -> cat, mushroom -> cat and sunflower -> bird were surprising.
 MSP is normalised confidence and discards logit magnitude. MLS and Energy keep magnitude. Mahalanobis uses feature-space distance, so it is the most independent signal.
-MLS and Energy were close to each other, and MSP were close to both, with Mahalanobis being furthest. We saw very good improvements from GCSC, while little difference from PROSER.
+MLS and Energy were close to each other, and MSP were close to both, with Mahalanobis being furthest. We saw very good improvements from GCSC, while little difference from PROSER in near rej (PROSER was worse for far rej).
 \section{Conclusions}
 \label{sec:conclusion}
 
-We saw that in terms of inductive bias, CNNs have strong texture bias while Visual Transformers have a shape bias. Neither had strong colour or translation Bias.
-For Domain Adaptation we see DAN with MMD beat DANN with adversarial alignment while CDAN did better than both. WIth DOmain Adaptation we saw SAM
-perform much better than DAN-DG as well as being much more stable. Lastly, with our Open Set problem we saw GCSC significantly out perform, while both PROSER variants
+We saw that in terms of inductive bias, CNNs have strong texture bias (compared with ViT or CLIP) while Visual Transformers have a shape bias. Neither had strong colour or translation Bias.
+For Domain Adaptation we see DAN with MMD beat DANN with adversarial alignment while CDAN did better than both. WIth DOmain Generalization we saw SAM
+perform better than DAN-DG as well as being much more stable. Lastly, with our Open Set problem we saw GCSC significantly out perform, while both PROSER variants
 were unable to beat even vanilla
 
 \small
