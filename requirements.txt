@@ -47,3 +47,4 @@ gdown
 # --- Dev convenience ---
 ipykernel             # run notebooks against this venv
 tensorboard           # optional loss-curve logging
+pyarrow

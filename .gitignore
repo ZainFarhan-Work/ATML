@@ -5,6 +5,7 @@ rough*.md
 # The shared virtualenv lives here and must never be committed.
 .venv/
 venv/
+atml/
 
 __pycache__/
 *.py[cod]
