@@ -21,6 +21,7 @@ data/
 *.safetensors
 checkpoints/
 cache/
+cached/
 wandb/
 *.log
 

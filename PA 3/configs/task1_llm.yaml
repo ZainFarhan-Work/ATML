@@ -1,0 +1,71 @@
+base_config: configs/base.yaml
+
+model_id: Qwen/Qwen3-0.6B
+model_revision: null          # pin a commit hash here once downloaded (see README)
+
+data:
+  dataset: meta-math/MetaMathQA
+  gsm8k_dataset: openai/gsm8k
+  n_train: 40000
+  max_len: 2048
+  eligible_ids_path: splits/task1_train_ids.json
+  probe_path: splits/task1_probe_set.json
+  probe_n_gsm8k: 32
+  probe_n_hellaswag: 32
+  qualitative_questions: data/first_plot_questions.yaml   # supplied with the assignment
+
+train:
+  micro_batch: 2
+  grad_accum: 16
+  updates: 1250
+  warmup_updates: 38
+  weight_decay: 0.01
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+  grad_clip: 1.0
+  grad_checkpointing: true
+  checkpoint_updates: [312, 625, 937, 1250]
+  eval_updates: [625, 1250]
+  log_every: 1
+
+# kind: full | lora | oplora
+methods:
+  full_ft:      {kind: full,   lr: 2.0e-5, l2sp: 0.0}
+  full_ft_l2sp: {kind: full,   lr: 2.0e-5, l2sp: 1.0e-3, ref_device: cpu}   # theta_0 on CPU: fits a 16 GB T4; use cuda if memory allows
+  lora4:        {kind: lora,   lr: 2.0e-4, r: 4,  alpha: 8,  dropout: 0.05}
+  lora16:       {kind: lora,   lr: 2.0e-4, r: 16, alpha: 32, dropout: 0.05}
+  oplora16:     {kind: oplora, lr: 2.0e-4, r: 16, alpha: 32, dropout: 0.05, protect_k: 128}
+
+lora_targets: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+eval:
+  # Conditions: (method, update). Baseline is update 0.
+  conditions:
+    - {name: baseline,          method: null,         update: 0}
+    - {name: full_ft_mid,       method: full_ft,      update: 625}
+    - {name: full_ft_final,     method: full_ft,      update: 1250}
+    - {name: full_ft_l2sp,      method: full_ft_l2sp, update: 1250}
+    - {name: lora4,             method: lora4,        update: 1250}
+    - {name: lora16,            method: lora16,       update: 1250}
+    - {name: oplora16,          method: oplora16,     update: 1250}
+  batch_size: 16
+  gsm8k_max_gen_toks: 1024
+  tasks: [gsm8k_cot, hellaswag, boolq, arc_easy]
+  limit: null                 # set to a small int for smoke tests only
+  merge_check_batch: 4
+
+diagnostics:
+  layers: [0, 13, 27]
+  module: down_proj
+  protect_k: 128
+  math_prompts_n: 64          # drawn from the probe set (GSM8K questions + benchmark formats)
+
+qualitative:
+  max_new_tokens: 512
+  annotate_questions: first_and_last   # first and last plain questions, all formats, all conditions
+
+paths:
+  checkpoints: checkpoints/task1
+  results: results/task1
+  outputs: outputs/task1
+  figures: figures/task1

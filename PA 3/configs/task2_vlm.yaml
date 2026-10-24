@@ -1,0 +1,74 @@
+base_config: configs/base.yaml
+
+llm_id: Qwen/Qwen3-0.6B
+llm_revision: null
+vision_id: google/siglip-base-patch16-224
+vision_revision: null
+
+features:
+  dir: cached/task2_features         # FP16 [196,768] per image, one .pt shard per split
+  n_tokens: 196
+  vision_dim: 768
+  llm_dim: 1024
+
+data:
+  coco_root: data/coco               # train2014/, val2014/, annotations/
+  vqa_root: data/vqav2               # complementary pairs json + questions/annotations
+  out_dir: splits/task2
+  seed: 6304
+  caption:
+    train_images: 6000
+    captions_per_image: 3
+    dev_images: 96
+  grounding:
+    dev_pairs: 24
+    test_pairs: 64
+    pool_presence_pairs: 3000
+    pool_counting_pairs: 3000
+    min_instances: 1                 # counts between 1 and 4
+    max_instances: 4
+    min_box_area_frac: 0.02          # ignore tiny / ambiguous annotations
+    exclude_crowd: true
+  vqa:
+    train: {yes_no: 640, number: 256, other: 640}
+    dev:   {yes_no: 12,  number: 8,   other: 12}
+    test:  {yes_no: 36,  number: 24,  other: 36}
+    min_agree: 8                     # annotators giving the consensus answer, per image
+
+train:
+  micro_batch: 8
+  grad_accum: 2
+  weight_decay: 0.01
+  grad_clip: 1.0
+  warmup_frac: 0.05
+  final_lr_frac: 0.10
+  grad_checkpointing: true
+  max_question_tokens: 80
+  max_caption_tokens: 64
+  max_answer_tokens: 16
+  stages:
+    - {name: caption,   updates: 2250, connector_lr: 1.0e-3, lora_lr: null,   lora: false}
+    - {name: vit,       updates: 1500, connector_lr: 1.0e-4, lora_lr: 2.0e-5, lora: true,
+       mix: {presence: 0.5, counting: 0.25, caption: 0.25}}
+    - {name: natural,   updates: 750,  connector_lr: 5.0e-5, lora_lr: 1.0e-5, lora: true,
+       mix: {vqa: 0.7, presence: 0.1, counting: 0.1, caption: 0.1}}
+  checkpoint_every: 250
+  dev_eval_updates: [0, 500, 1000, 1500, 2000, 2250, 2500, 3000, 3500, 3750, 4000, 4500]
+  lora: {r: 16, alpha: 32, dropout: 0.05, targets: [q_proj, k_proj, v_proj, o_proj]}
+
+eval:
+  batch_size: 8
+  max_new_tokens: 16
+  conditions: [correct, swap, mismatch, no_image]
+  bootstrap: 4000
+
+compression:
+  enabled: false
+  n_tokens: 49                       # 2x2 average pooling of the 14x14 grid
+  run_name: tokens49
+
+paths:
+  checkpoints: checkpoints/task2
+  results: results/task2
+  outputs: outputs/task2
+  figures: figures/task2

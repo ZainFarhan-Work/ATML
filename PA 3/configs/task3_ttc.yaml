@@ -1,0 +1,43 @@
+base_config: configs/base.yaml
+
+data:
+  root: data/ATML-PA3-Data           # supplied rollout export
+  llm_dir: Qwen2.5-3B-Instruct
+  vlm_dir: Qwen2.5-VL-3B-Instruct
+  mathvista_metadata: data/ATML-PA3-Data/mathvista_question_metadata.json   # released question metadata
+  split_path: splits/task3_split.json
+  n_dev: 200
+  live_n: 50
+
+budgets: [1, 2, 4, 8, 16, 32]
+n_orders: 10
+order_seed: 6304
+n_rollouts: 32
+bootstrap: 1000
+tie_break: earliest_in_order
+
+live:
+  model_id: Qwen/Qwen2.5-3B-Instruct
+  model_revision: null               # use the revision recorded in the supplied README.MD
+  dtype: float16
+  system_message: "You are a helpful assistant."
+  prompt_suffix: "Think step by step inside <think> </think> tags, then give your final answer inside \\boxed{}."
+  refine_instruction: "Review the solution above. Identify and correct any errors; if it is correct, retain its answer. Give your final answer inside \\boxed{}."
+  sampling: {temperature: 0.7, top_p: 0.8, top_k: 20, repetition_penalty: 1.0}
+  single_long_tokens: 3072
+  parallel: {n: 3, tokens: 1024}
+  refine: {initial_tokens: 1024, revision_tokens: 2048}
+  seed: 6304
+
+adaptive:
+  check_at: [4, 8, 16]
+  max_n: 32
+  taus: [0.5, 0.625, 0.75, 0.875, 1.0]
+  gammas: [0.0, 0.1, 0.25, 0.5]
+  max_acc_drop_pp: 1.0               # vs fixed-32 self-consistency on dev
+  quality_signal: {math: self_certainty, mathvista: visconf}
+
+paths:
+  results: results/task3
+  outputs: outputs/task3
+  figures: figures/task3
