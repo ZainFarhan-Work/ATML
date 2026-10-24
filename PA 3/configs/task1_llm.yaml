@@ -12,7 +12,7 @@ data:
   probe_path: splits/task1_probe_set.json
   probe_n_gsm8k: 32
   probe_n_hellaswag: 32
-  qualitative_questions: data/first_plot_questions.yaml   # supplied with the assignment
+  qualitative_questions: configs/first_plot_questions.yaml   # copy the assignment file here
 
 train:
   micro_batch: 2

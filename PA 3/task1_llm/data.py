@@ -28,10 +28,11 @@ def load_tokenizer(model_id: str, revision: str | None = None):
     return tok
 
 
-def chat_prompt(tok, question: str) -> str:
-    """User turn + assistant header with thinking disabled."""
+def chat_prompt(tok, question: str, system: str | None = None) -> str:
+    """(optional system +) user turn + assistant header with thinking disabled."""
+    msgs = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": question}]
     return tok.apply_chat_template(
-        [{"role": "user", "content": question}],
+        msgs,
         tokenize=False,
         add_generation_prompt=True,
         enable_thinking=False,
@@ -147,36 +148,20 @@ def build_probe_set(cfg) -> dict:
 
 
 def load_qualitative_prompts(path: str) -> list[dict]:
-    """Parse first_plot_questions.yaml into [{qid, qindex, fmt, prompt}] in file order.
-
-    The assignment ships this file; its exact schema is not documented in the manual, so the
-    parser accepts a list (or a dict wrapping one) of mappings with a prompt text and optional
-    format / question-id fields. Adjust here if the real file differs.
+    """Parse first_plot_questions.yaml (emergent-misalignment repo) into
+    [{qid, qindex, fmt, prompt, system}] in file order: 8 plain, 8 *_json (with a system prompt), 8 *_template.
+    `qindex` follows the plain-question order, so the first/last underlying questions are qindex 0 and 7.
     """
     import yaml
 
     raw = yaml.safe_load(repo_path(path).read_text(encoding="utf-8"))
-    if isinstance(raw, dict):
-        lists = [v for v in raw.values() if isinstance(v, list)]
-        if not lists:
-            raise ValueError(f"cannot find a prompt list in {path}; keys={list(raw)}")
-        raw = max(lists, key=len)
-    prompt_keys = ["prompt", "text", "input", "content", "question_text"]
-    fmt_keys = ["format", "type", "style", "kind"]
-    qid_keys = ["question_id", "qid", "base_question", "question", "group"]
-    rows, qorder = [], {}
-    for n, item in enumerate(raw):
-        if isinstance(item, str):
-            item = {"prompt": item}
-        prompt = next((item[k] for k in prompt_keys if k in item), None)
-        if prompt is None:
-            raise ValueError(f"item {n} of {path} has no prompt field: {item}")
-        fmt = next((str(item[k]) for k in fmt_keys if k in item), ["plain", "json", "template"][n % 3])
-        qid = next((str(item[k]) for k in qid_keys if k in item and k != "question"), None)
-        if qid is None:
-            qid = str(item.get("question", n // 3)) if "question" in item else str(n // 3)
-        qorder.setdefault(qid, len(qorder))
-        rows.append({"qid": qid, "qindex": qorder[qid], "fmt": fmt, "prompt": prompt})
-    if len(rows) != 24:
-        print(f"[warn] expected 24 qualitative prompts, parsed {len(rows)}")
+    plain_ids = [it["id"] for it in raw if not it["id"].endswith(("_json", "_template"))]
+    rows = []
+    for it in raw:
+        iid = it["id"]
+        fmt = "json" if iid.endswith("_json") else "template" if iid.endswith("_template") else "plain"
+        qid = iid.removesuffix("_json").removesuffix("_template")
+        rows.append({"qid": qid, "qindex": plain_ids.index(qid), "fmt": fmt, "prompt": it["paraphrases"][0],
+                     "system": it.get("system")})
+    assert len(rows) == 24 and len(plain_ids) == 8, (len(rows), len(plain_ids))
     return rows

@@ -34,8 +34,8 @@ def valid_json(text: str) -> bool:
 
 
 @torch.no_grad()
-def generate(model, tok, prompt: str, max_new: int) -> tuple[str, int, bool]:
-    enc = tok(chat_prompt(tok, prompt), return_tensors="pt", add_special_tokens=False).to("cuda")
+def generate(model, tok, prompt: str, max_new: int, system: str | None = None) -> tuple[str, int, bool]:
+    enc = tok(chat_prompt(tok, prompt, system), return_tensors="pt", add_special_tokens=False).to("cuda")
     out = model.generate(**enc, max_new_tokens=max_new, do_sample=False, temperature=None, top_p=None, top_k=None,
                          pad_token_id=tok.pad_token_id)
     gen = out[0, enc["input_ids"].shape[1]:]
@@ -55,7 +55,7 @@ def main():
     for cond in cfg["eval"]["conditions"]:
         model = load_condition_model(cfg, cond)
         for p in prompts:
-            text, n, trunc = generate(model, tok, p["prompt"], max_new)
+            text, n, trunc = generate(model, tok, p["prompt"], max_new, p["system"])
             rows.append({"condition": cond["name"], **p, "response": text, "n_tokens": n, "truncated": trunc,
                          "repetition": repetition_score(text),
                          "json_valid": valid_json(text) if p["fmt"].lower().startswith("json") else None})
