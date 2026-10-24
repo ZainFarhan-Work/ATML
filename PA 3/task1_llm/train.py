@@ -11,6 +11,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+import torch.utils.checkpoint
 from transformers import AutoModelForCausalLM
 
 from common.utils import (append_jsonl, read_jsonl, cosine_lr, count_params, dir_size_mb, load_yaml, peak_memory_mb,
@@ -54,13 +55,24 @@ def make_optimizer(params, tcfg: dict, lr: float):
     return torch.optim.AdamW(groups, lr=lr, betas=tuple(tcfg["betas"]), eps=tcfg["eps"])
 
 
-def sft_loss_sum(model, ids, att, lab):
-    """Sum of token CE over assistant-response + end-of-turn tokens; logits only at supervised positions."""
+def sft_loss_sum(model, ids, att, lab, chunk: int = 512):
+    """Sum of token CE over assistant-response + end-of-turn tokens.
+
+    Logits are formed only at supervised positions and in checkpointed chunks, so the [tokens x 152k-vocab]
+    logit tensor (and its gradient) never exists in full; this bounds peak memory on long examples.
+    """
     hidden = model.model(input_ids=ids, attention_mask=att).last_hidden_state
     mask = lab[:, 1:] != -100
     h = hidden[:, :-1][mask]
-    logits = model.lm_head(h).float()
-    return torch.nn.functional.cross_entropy(logits, lab[:, 1:][mask], reduction="sum")
+    tgt = lab[:, 1:][mask]
+
+    def ce(hc, tc):
+        return torch.nn.functional.cross_entropy(model.lm_head(hc).float(), tc, reduction="sum")
+
+    total = h.new_zeros((), dtype=torch.float32)
+    for s in range(0, h.shape[0], chunk):
+        total = total + torch.utils.checkpoint.checkpoint(ce, h[s:s + chunk], tgt[s:s + chunk], use_reentrant=False)
+    return total
 
 
 @torch.no_grad()
