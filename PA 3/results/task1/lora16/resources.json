@@ -1,0 +1,15 @@
+{
+  "method": "lora16",
+  "train_seconds": 4859.0934813410495,
+  "wall_seconds": 4859.725669454001,
+  "peak_gpu_mb": 2440.73193359375,
+  "trainable_params": 10092544,
+  "svd_seconds": 0.0,
+  "basis_bytes": 0,
+  "checkpoint_mb": {
+    "adapter_625.pt": 38.61215877532959,
+    "adapter_1250.pt": 38.61253833770752,
+    "recovery_1250.pt": 115.93984699249268
+  },
+  "skipped_updates": 0
+}

@@ -1,0 +1,17 @@
+{
+  "method": "oplora16",
+  "train_seconds": 6432.404602615941,
+  "wall_seconds": 6433.132580775,
+  "peak_gpu_mb": 2748.73193359375,
+  "trainable_params": 10092544,
+  "svd_seconds": 18.147591282002395,
+  "basis_bytes": 322961408,
+  "basis_storage_mb": 308.085223197937,
+  "checkpoint_mb": {
+    "bases.pt": 308.085223197937,
+    "adapter_625.pt": 38.61215877532959,
+    "adapter_1250.pt": 38.61253833770752,
+    "recovery_1250.pt": 115.93984699249268
+  },
+  "skipped_updates": 0
+}
