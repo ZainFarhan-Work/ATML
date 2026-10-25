@@ -32,7 +32,8 @@ def load_condition_model(cfg: dict, cond: dict, device: str = "cuda"):
     if cond["method"] is None:
         model = AutoModelForCausalLM.from_pretrained(cfg["model_id"], **kw)
     elif cfg["methods"][cond["method"]]["kind"] == "full":
-        model = AutoModelForCausalLM.from_pretrained(run_dir / f"eval_{cond['update']}", **kw)
+        d = run_dir / f"fp16_{cond['update']}"  # portable bundle, if extracted
+        model = AutoModelForCausalLM.from_pretrained(d if d.exists() else run_dir / f"eval_{cond['update']}", **kw)
     else:
         model = AutoModelForCausalLM.from_pretrained(cfg["model_id"], **kw)
         payload = torch.load(run_dir / f"adapter_{cond['update']}.pt", map_location="cpu")

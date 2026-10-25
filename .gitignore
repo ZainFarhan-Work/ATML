@@ -30,6 +30,7 @@ wandb/
 .idea/
 .DS_Store
 *.swp
+*.zip
 
 # LaTeX build artifacts (keep .tex, .sty, .pdf)
 *.aux

@@ -1,0 +1,15 @@
+{
+  "method": "full_ft_l2sp",
+  "train_seconds": 9179.688617812979,
+  "wall_seconds": 4607.206674809,
+  "peak_gpu_mb": 11384.80126953125,
+  "trainable_params": 596049920,
+  "ref_device": "cpu",
+  "ref_bytes": 2384199680,
+  "ref_setup_seconds": 1.6391809330016258,
+  "checkpoint_mb": {
+    "eval_1250": 2273.7851543426514,
+    "recovery_1250.pt": 6821.648949623108
+  },
+  "skipped_updates": 0
+}

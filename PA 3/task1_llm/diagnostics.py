@@ -20,6 +20,9 @@ def weight_name(layer: int, module: str) -> str:
 
 
 def read_full_weight(snap_dir, key: str) -> torch.Tensor:
+    layers = snap_dir.parent / f"layers_{snap_dir.name.split('_')[-1]}.pt"  # extracted bundle, if present
+    if not snap_dir.exists() and layers.exists():
+        return torch.load(layers, map_location="cpu")[key].float()
     for f in sorted(snap_dir.glob("*.safetensors")):
         with safe_open(str(f), "pt") as sf:
             if key in sf.keys():
