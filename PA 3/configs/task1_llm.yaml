@@ -48,7 +48,8 @@ eval:
     - {name: lora4,             method: lora4,        update: 1250}
     - {name: lora16,            method: lora16,       update: 1250}
     - {name: oplora16,          method: oplora16,     update: 1250}
-  batch_size: 16
+  batch_size: 16              # GSM8K generation
+  ll_batch_size: 4            # HellaSwag/BoolQ/ARC-E: full-vocab logits OOM at 16 on a 6 GB card (BoolQ up to ~1.3k tokens)
   gsm8k_max_gen_toks: 1024
   tasks: [gsm8k_cot, hellaswag, boolq, arc_easy]
   limit: null                 # set to a small int for smoke tests only

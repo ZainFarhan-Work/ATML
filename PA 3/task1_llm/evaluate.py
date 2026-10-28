@@ -73,6 +73,7 @@ def run_benchmarks(cfg: dict, model, tok, name: str) -> dict:
         limit=ecfg["limit"], log_samples=True, random_seed=cfg["seed"], numpy_random_seed=cfg["seed"],
         torch_random_seed=cfg["seed"], fewshot_random_seed=cfg["seed"])
     gen_seconds = time.perf_counter() - t0
+    lm.batch_size_per_gpu = ecfg.get("ll_batch_size", ecfg["batch_size"])
     ll = evaluator.simple_evaluate(
         model=lm, tasks=[t for t in ecfg["tasks"] if t != "gsm8k_cot"], num_fewshot=0, apply_chat_template=False,
         limit=ecfg["limit"], log_samples=True, random_seed=cfg["seed"], numpy_random_seed=cfg["seed"],
