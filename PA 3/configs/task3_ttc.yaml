@@ -1,10 +1,10 @@
 base_config: configs/base.yaml
 
 data:
-  root: data/ATML-PA3-Data           # supplied rollout export
-  llm_dir: Qwen2.5-3B-Instruct
-  vlm_dir: Qwen2.5-VL-3B-Instruct
-  mathvista_metadata: data/ATML-PA3-Data/mathvista_question_metadata.json   # released question metadata
+  root: data                            # supplied rollout export
+  llm_dir: qwen25-math
+  vlm_dir: qwen25vl-mathvista
+  mathvista_metadata: data/mathvista_testmini_meta.json   # released question metadata
   split_path: splits/task3_split.json
   n_dev: 200
   live_n: 50
@@ -35,7 +35,7 @@ adaptive:
   taus: [0.5, 0.625, 0.75, 0.875, 1.0]
   gammas: [0.0, 0.1, 0.25, 0.5]
   max_acc_drop_pp: 1.0               # vs fixed-32 self-consistency on dev
-  quality_signal: {math: self_certainty, mathvista: visconf}
+  quality_signal: {math: self_cert, mathvista: visconf}
 
 paths:
   results: results/task3

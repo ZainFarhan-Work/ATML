@@ -13,7 +13,7 @@ import time
 import numpy as np
 import torch
 from PIL import Image
-from transformers import SiglipImageProcessor, SiglipVisionModel
+from transformers import SiglipConfig, SiglipImageProcessor, SiglipVisionModel
 
 from common.utils import load_json, load_yaml, peak_memory_mb, repo_path, reset_peak_memory, save_json
 from task2_vlm.vlm_data import all_image_keys, image_file
@@ -31,7 +31,8 @@ def main():
     n, T, D = len(keys), cfg["features"]["n_tokens"], cfg["features"]["vision_dim"]
 
     proc = SiglipImageProcessor.from_pretrained(cfg["vision_id"], revision=cfg["vision_revision"])
-    model = SiglipVisionModel.from_pretrained(cfg["vision_id"], revision=cfg["vision_revision"], torch_dtype=torch.float16).cuda().eval()
+    vcfg = SiglipConfig.from_pretrained(cfg["vision_id"], revision=cfg["vision_revision"]).vision_config  # the hub config is the full dual-tower one
+    model = SiglipVisionModel.from_pretrained(cfg["vision_id"], revision=cfg["vision_revision"], config=vcfg, dtype=torch.float16).cuda().eval()
     feats = np.lib.format.open_memmap(out_dir / "features.npy", mode="w+", dtype=np.float16, shape=(n, T, D))
     reset_peak_memory()
     t0 = time.perf_counter()

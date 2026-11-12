@@ -1,0 +1,52 @@
+{
+  "condition": {
+    "name": "oplora16",
+    "method": "oplora16",
+    "update": 1250
+  },
+  "merge_check": {
+    "max_abs_diff": 0.171875,
+    "mean_abs_diff": 0.007361582946032286,
+    "top1_agreement": 1.0
+  },
+  "scores": {
+    "gsm8k_cot": {
+      "name": "gsm8k_cot",
+      "alias": "gsm8k_cot",
+      "sample_len": 1319,
+      "exact_match,strict-match": 0.0,
+      "exact_match_stderr,strict-match": 0.0,
+      "exact_match,flexible-extract": 0.6209249431387415,
+      "exact_match_stderr,flexible-extract": 0.01336363029508835
+    },
+    "hellaswag": {
+      "name": "hellaswag",
+      "alias": "hellaswag",
+      "sample_len": 10042,
+      "acc,none": 0.37751443935471024,
+      "acc_stderr,none": 0.004837744647345695,
+      "acc_norm,none": 0.4714200358494324,
+      "acc_norm_stderr,none": 0.004981623292196158
+    },
+    "boolq": {
+      "name": "boolq",
+      "alias": "boolq",
+      "sample_len": 3270,
+      "acc,none": 0.7015290519877676,
+      "acc_stderr,none": 0.008003250356923269
+    },
+    "arc_easy": {
+      "name": "arc_easy",
+      "alias": "arc_easy",
+      "sample_len": 2376,
+      "acc,none": 0.6616161616161617,
+      "acc_stderr,none": 0.00970903467052499,
+      "acc_norm,none": 0.6334175084175084,
+      "acc_norm_stderr,none": 0.009887786585323896
+    }
+  },
+  "eval_seconds": 2329.6542376809994,
+  "gsm8k_generation_seconds": 1621.8104569560019,
+  "peak_gpu_mb": 7525.8134765625,
+  "gsm8k_truncation_rate": 0.006823351023502654
+}

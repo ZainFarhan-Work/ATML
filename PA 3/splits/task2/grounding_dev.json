@@ -1,0 +1,482 @@
+[
+  {
+    "pair_id": "gdev_presence_0",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "car",
+    "question": "Does this image contain a car?",
+    "items": [
+      {
+        "image_id": 171107,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 224850,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_presence_1",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "elephant",
+    "question": "Does this image contain an elephant?",
+    "items": [
+      {
+        "image_id": 446751,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 435785,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_presence_2",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "tie",
+    "question": "Does this image contain a tie?",
+    "items": [
+      {
+        "image_id": 191053,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 404249,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_presence_3",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "surfboard",
+    "question": "Does this image contain a surfboard?",
+    "items": [
+      {
+        "image_id": 486079,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 374576,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_presence_4",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "sheep",
+    "question": "Does this image contain a sheep?",
+    "items": [
+      {
+        "image_id": 473541,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 421865,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_presence_5",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "bear",
+    "question": "Does this image contain a bear?",
+    "items": [
+      {
+        "image_id": 251936,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 521181,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_presence_6",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "truck",
+    "question": "Does this image contain a truck?",
+    "items": [
+      {
+        "image_id": 278601,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 476903,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_presence_7",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "bottle",
+    "question": "Does this image contain a bottle?",
+    "items": [
+      {
+        "image_id": 51355,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 322226,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_presence_8",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "horse",
+    "question": "Does this image contain a horse?",
+    "items": [
+      {
+        "image_id": 142318,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 378098,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_presence_9",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "frisbee",
+    "question": "Does this image contain a frisbee?",
+    "items": [
+      {
+        "image_id": 347950,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 241867,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_presence_10",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "dining table",
+    "question": "Does this image contain a dining table?",
+    "items": [
+      {
+        "image_id": 479042,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 179430,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_presence_11",
+    "kind": "presence",
+    "qtype": "yes/no",
+    "split": "val2014",
+    "category": "baseball bat",
+    "question": "Does this image contain a baseball bat?",
+    "items": [
+      {
+        "image_id": 334083,
+        "answer": "yes",
+        "refs": null
+      },
+      {
+        "image_id": 447569,
+        "answer": "no",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_12",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "wine glass",
+    "question": "How many wine glasses can you see?",
+    "items": [
+      {
+        "image_id": 184425,
+        "answer": "3",
+        "refs": null
+      },
+      {
+        "image_id": 85089,
+        "answer": "4",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_13",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "motorcycle",
+    "question": "How many motorcycles can you see?",
+    "items": [
+      {
+        "image_id": 269254,
+        "answer": "3",
+        "refs": null
+      },
+      {
+        "image_id": 302710,
+        "answer": "2",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_14",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "truck",
+    "question": "How many trucks can you see?",
+    "items": [
+      {
+        "image_id": 126030,
+        "answer": "2",
+        "refs": null
+      },
+      {
+        "image_id": 214255,
+        "answer": "1",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_15",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "dog",
+    "question": "How many dogs can you see?",
+    "items": [
+      {
+        "image_id": 278550,
+        "answer": "1",
+        "refs": null
+      },
+      {
+        "image_id": 477202,
+        "answer": "3",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_16",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "bear",
+    "question": "How many bears can you see?",
+    "items": [
+      {
+        "image_id": 489209,
+        "answer": "3",
+        "refs": null
+      },
+      {
+        "image_id": 189095,
+        "answer": "2",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_17",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "pizza",
+    "question": "How many pizzas can you see?",
+    "items": [
+      {
+        "image_id": 556478,
+        "answer": "2",
+        "refs": null
+      },
+      {
+        "image_id": 141317,
+        "answer": "3",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_18",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "motorcycle",
+    "question": "How many motorcycles can you see?",
+    "items": [
+      {
+        "image_id": 457848,
+        "answer": "3",
+        "refs": null
+      },
+      {
+        "image_id": 138488,
+        "answer": "1",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_19",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "tennis racket",
+    "question": "How many tennis rackets can you see?",
+    "items": [
+      {
+        "image_id": 85298,
+        "answer": "2",
+        "refs": null
+      },
+      {
+        "image_id": 369323,
+        "answer": "1",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_20",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "potted plant",
+    "question": "How many potted plants can you see?",
+    "items": [
+      {
+        "image_id": 433984,
+        "answer": "4",
+        "refs": null
+      },
+      {
+        "image_id": 390072,
+        "answer": "1",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_21",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "sink",
+    "question": "How many sinks can you see?",
+    "items": [
+      {
+        "image_id": 228604,
+        "answer": "3",
+        "refs": null
+      },
+      {
+        "image_id": 347879,
+        "answer": "2",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_22",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "elephant",
+    "question": "How many elephants can you see?",
+    "items": [
+      {
+        "image_id": 348931,
+        "answer": "1",
+        "refs": null
+      },
+      {
+        "image_id": 287574,
+        "answer": "2",
+        "refs": null
+      }
+    ]
+  },
+  {
+    "pair_id": "gdev_counting_23",
+    "kind": "counting",
+    "qtype": "number",
+    "split": "val2014",
+    "category": "tie",
+    "question": "How many ties can you see?",
+    "items": [
+      {
+        "image_id": 434415,
+        "answer": "1",
+        "refs": null
+      },
+      {
+        "image_id": 189504,
+        "answer": "3",
+        "refs": null
+      }
+    ]
+  }
+]

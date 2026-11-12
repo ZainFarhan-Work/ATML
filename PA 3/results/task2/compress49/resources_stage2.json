@@ -1,0 +1,11 @@
+{
+  "stage": 2,
+  "name": "vit",
+  "seconds": 542.745228984,
+  "peak_gpu_mb": 1487.06591796875,
+  "trainable": {
+    "connector": 1837056,
+    "lora": 4587520,
+    "total": 6424576
+  }
+}

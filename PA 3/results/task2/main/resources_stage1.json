@@ -1,0 +1,11 @@
+{
+  "stage": 1,
+  "name": "caption",
+  "seconds": 2170.839557266001,
+  "peak_gpu_mb": 1594.15966796875,
+  "trainable": {
+    "connector": 1837056,
+    "lora": 0,
+    "total": 1837056
+  }
+}

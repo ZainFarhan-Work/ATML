@@ -21,7 +21,7 @@ COLUMN_CANDIDATES = {
         "text": ["text", "generated_text", "response", "output_text"],
         "answer": ["extracted_answer", "answer_extracted", "pred_answer", "prediction", "final_answer"],
         "gold": ["gold_answer", "gold", "reference_answer", "ground_truth", "target", "answer_gold"],
-        "n_tokens": ["num_tokens", "n_tokens", "length", "gen_len", "generated_tokens", "output_tokens", "token_count"],
+        "n_tokens": ["n_generated_text_tokens", "num_tokens", "n_tokens", "length", "gen_len", "generated_tokens", "output_tokens", "token_count"],
         "question": ["question", "problem", "question_text", "prompt_text"],
     },
     "probability": {
@@ -29,9 +29,9 @@ COLUMN_CANDIDATES = {
         "kl": ["kl_u_p", "kl", "kl_uniform"],
     },
     "attention": {
-        "image": ["image", "attn_image", "image_attention", "attention_image", "A_image"],
-        "prompt": ["prompt", "attn_prompt", "prompt_attention", "attention_prompt", "A_prompt", "prompt_text"],
-        "generated": ["generated", "attn_generated", "generated_attention", "attention_generated", "A_generated", "generated_text"],
+        "image": ["img_attn_total", "image", "attn_image", "image_attention", "attention_image", "A_image"],
+        "prompt": ["prompt_text_attn_total", "prompt", "attn_prompt", "prompt_attention", "attention_prompt", "A_prompt", "prompt_text"],
+        "generated": ["generated_text_attn_total", "generated", "attn_generated", "generated_attention", "attention_generated", "A_generated", "generated_text"],
     },
 }
 

@@ -1,0 +1,59 @@
+{
+  "parallel_sc": {
+    "accuracy": 0.58,
+    "acc_lo": 0.44,
+    "acc_hi": 0.72,
+    "input_tokens": 325.14,
+    "output_tokens": 1854.8,
+    "seconds": 90.52860318733994,
+    "peak_gpu_mb": 5973.08154296875,
+    "truncation_rate": 0.28,
+    "final_truncation_rate": 0.2,
+    "extraction_rate": 0.76
+  },
+  "sequential_refine": {
+    "accuracy": 0.56,
+    "acc_lo": 0.42,
+    "acc_hi": 0.7,
+    "input_tokens": 877.42,
+    "output_tokens": 1236.98,
+    "seconds": 61.623634660559944,
+    "peak_gpu_mb": 6241.24609375,
+    "truncation_rate": 0.18,
+    "final_truncation_rate": 0.04,
+    "extraction_rate": 0.96
+  },
+  "single_long": {
+    "accuracy": 0.54,
+    "acc_lo": 0.4,
+    "acc_hi": 0.68,
+    "input_tokens": 108.38,
+    "output_tokens": 716.02,
+    "seconds": 35.168071843079915,
+    "peak_gpu_mb": 6088.03515625,
+    "truncation_rate": 0.02,
+    "final_truncation_rate": 0.02,
+    "extraction_rate": 0.98
+  },
+  "diff_parallel_sc_minus_single_long": {
+    "mean": 0.04,
+    "lo": -0.06,
+    "hi": 0.14
+  },
+  "diff_sequential_refine_minus_single_long": {
+    "mean": 0.02,
+    "lo": -0.06,
+    "hi": 0.12
+  },
+  "diff_sequential_refine_minus_parallel_sc": {
+    "mean": -0.02,
+    "lo": -0.08,
+    "hi": 0.06
+  },
+  "transitions": {
+    "wrong_to_correct": 1,
+    "correct_to_wrong": 0,
+    "stay_correct": 27,
+    "stay_wrong": 22
+  }
+}

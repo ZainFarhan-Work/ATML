@@ -1,0 +1,30 @@
+{
+  "grounding": {
+    "grounded": [
+      "gtest_presence_0",
+      "gtest_presence_1"
+    ],
+    "follows_partner": [
+      "gtest_presence_0",
+      "gtest_presence_1"
+    ],
+    "image_insensitive": [
+      "gtest_presence_8",
+      "gtest_presence_11"
+    ]
+  },
+  "vqa": {
+    "grounded": [
+      "vtest_vqa_251910002_431023013",
+      "vtest_vqa_370423002_238799003"
+    ],
+    "follows_partner": [
+      "vtest_vqa_251910002_431023013",
+      "vtest_vqa_370423002_238799003"
+    ],
+    "image_insensitive": [
+      "vtest_vqa_64157001_465069001",
+      "vtest_vqa_357816001_297522002"
+    ]
+  }
+}

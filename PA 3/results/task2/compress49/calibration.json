@@ -1,0 +1,6 @@
+{
+  "rule": "match mean per-token L2 norm of connector output to mean text-embedding norm (training data only)",
+  "text_embed_norm": 0.8694272637367249,
+  "connector_norm_before": 11.489683151245117,
+  "scale": 0.07567025585405343
+}

@@ -1,0 +1,57 @@
+{
+  "selection_disagreement": [
+    {
+      "qid": "11",
+      "sc_group": "4",
+      "sc_correct": false,
+      "selfcert_group": "5",
+      "selfcert_correct": true
+    },
+    {
+      "qid": "111",
+      "sc_group": "6",
+      "sc_correct": false,
+      "selfcert_group": "5",
+      "selfcert_correct": true
+    },
+    {
+      "qid": "113",
+      "sc_group": "20",
+      "sc_correct": true,
+      "selfcert_group": "22",
+      "selfcert_correct": false
+    }
+  ],
+  "premature_stop": [
+    {
+      "family": "agreement",
+      "qid": 120,
+      "order": 1,
+      "n": 4,
+      "correct": false,
+      "tokens": 1095.0,
+      "fixed32_correct": true,
+      "pool_correct_frac": 0.4375
+    },
+    {
+      "family": "agreement",
+      "qid": 124,
+      "order": 2,
+      "n": 4,
+      "correct": false,
+      "tokens": 785.0,
+      "fixed32_correct": true,
+      "pool_correct_frac": 0.5
+    },
+    {
+      "family": "agreement",
+      "qid": 138,
+      "order": 8,
+      "n": 4,
+      "correct": false,
+      "tokens": 348.0,
+      "fixed32_correct": true,
+      "pool_correct_frac": 0.65625
+    }
+  ]
+}

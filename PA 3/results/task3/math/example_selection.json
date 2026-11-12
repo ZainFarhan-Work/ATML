@@ -1,0 +1,65 @@
+{
+  "selection_disagreement": [
+    {
+      "qid": "test:1153",
+      "sc_group": "g0",
+      "sc_correct": true,
+      "selfcert_group": "g3",
+      "selfcert_correct": false
+    },
+    {
+      "qid": "test:1157",
+      "sc_group": "g2",
+      "sc_correct": true,
+      "selfcert_group": "g1",
+      "selfcert_correct": false
+    },
+    {
+      "qid": "test:1188",
+      "sc_group": "g3",
+      "sc_correct": true,
+      "selfcert_group": "g6",
+      "selfcert_correct": false
+    }
+  ],
+  "premature_stop": [
+    {
+      "family": "agreement",
+      "qid": "test:1442",
+      "order": 6,
+      "n": 4,
+      "correct": false,
+      "tokens": 1903.0,
+      "fixed32_correct": true,
+      "pool_correct_frac": 0.40625
+    },
+    {
+      "family": "agreement",
+      "qid": "test:1663",
+      "order": 0,
+      "n": 4,
+      "correct": false,
+      "tokens": 3300.0,
+      "fixed32_correct": true,
+      "pool_correct_frac": 0.34375
+    },
+    {
+      "family": "agreement",
+      "qid": "test:1803",
+      "order": 1,
+      "n": 4,
+      "correct": false,
+      "tokens": 1064.0,
+      "fixed32_correct": true,
+      "pool_correct_frac": 0.5
+    }
+  ],
+  "revision_wrong_to_correct": [
+    {
+      "qid": "test:196",
+      "initial_answer": NaN,
+      "answer": "81"
+    }
+  ],
+  "revision_correct_to_wrong": []
+}

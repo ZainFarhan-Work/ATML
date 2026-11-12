@@ -1,0 +1,24 @@
+{
+  "n_questions": 800,
+  "quartile_gap_pp": {
+    "mean_logp": {
+      "mean": 7.781250000000001,
+      "lo": 6.15625,
+      "hi": 9.266015624999998
+    },
+    "self_cert": {
+      "mean": 11.78125,
+      "lo": 10.155078125,
+      "hi": 13.423437499999999
+    },
+    "neg_length": {
+      "mean": 4.4375,
+      "lo": 2.78125,
+      "hi": 6.125781249999999
+    }
+  },
+  "length_correctness_spearman": {
+    "mean": -0.07579711997314353,
+    "n_questions": 464
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "n_images": 20129,
+  "seconds": 168.5048785729996,
+  "peak_gpu_mb": 451.41455078125,
+  "disk_mb": 5779.2247314453125,
+  "vision_id": "google/siglip-base-patch16-224"
+}

@@ -1,0 +1,11 @@
+{
+  "stage": 3,
+  "name": "natural",
+  "seconds": 811.2171283129992,
+  "peak_gpu_mb": 1551.1279296875,
+  "trainable": {
+    "connector": 1837056,
+    "lora": 4587520,
+    "total": 6424576
+  }
+}

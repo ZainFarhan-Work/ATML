@@ -1,0 +1,20 @@
+{
+  "agreement": {
+    "family": "agreement",
+    "tau": 0.625,
+    "gamma": 0.0,
+    "fallback": false,
+    "dev_acc": 82.45,
+    "dev_tokens": 7240.4885,
+    "fixed32_dev_acc": 83.0
+  },
+  "quality": {
+    "family": "quality",
+    "tau": 0.5,
+    "gamma": 0.0,
+    "fallback": false,
+    "dev_acc": 82.0,
+    "dev_tokens": 5576.1255,
+    "fixed32_dev_acc": 83.0
+  }
+}

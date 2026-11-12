@@ -1,0 +1,49 @@
+{
+  "n_questions": 800,
+  "quartile_gap_pp": {
+    "mean_logp": {
+      "mean": 1.96875,
+      "lo": 0.3125,
+      "hi": 3.7816406249999996
+    },
+    "self_cert": {
+      "mean": 3.65625,
+      "lo": 2.046875,
+      "hi": 5.4375
+    },
+    "neg_length": {
+      "mean": 3.578125,
+      "lo": 1.92109375,
+      "hi": 5.36015625
+    },
+    "vision": {
+      "mean": 3.375,
+      "lo": 1.5621093750000001,
+      "hi": 5.125
+    },
+    "conf": {
+      "mean": 3.9531249999999996,
+      "lo": 2.436328125,
+      "hi": 5.640625
+    },
+    "visconf": {
+      "mean": 7.203125000000001,
+      "lo": 5.37421875,
+      "hi": 9.203515624999998
+    },
+    "visconf_tok": {
+      "mean": 6.953125,
+      "lo": 5.155078124999999,
+      "hi": 8.79765625
+    }
+  },
+  "length_correctness_spearman": {
+    "mean": -0.04327575352142683,
+    "n_questions": 640
+  },
+  "confidence_vision": {
+    "tokenwise_pearson_mean": -0.20934390631766578,
+    "rollout_level_spearman_mean": -0.3395073521887881,
+    "mean_token_cov": -0.0022433811398001385
+  }
+}
