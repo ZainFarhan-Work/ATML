@@ -7,7 +7,7 @@
 % The authors should use one of these tracks.
 % Before accepting by the NeurIPS conference, select one of the options below.
 % 0. "default" for submission
-\usepackage{./../neurips_2026}
+% \usepackage{./../neurips_2026}
 % the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
 % 1. "main" option is used for the Main Track
 %  \usepackage[main]{neurips_2026}
@@ -22,7 +22,7 @@
 % 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
 %  \usepackage[dblblindworkshop]{neurips_2026}
 % 7. "education" option is used for the Education Track
-%  \usepackage[education]{neurips_2026}
+%  \usepackage[education]{./../neurips_2026}
 
 
 % After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
@@ -42,7 +42,7 @@
 % For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
 % \workshoptitle{WORKSHOP TITLE}
 % 7. Education Track
-% \usepackage[education, final]{neurips_2026}
+\usepackage[education, final]{./../neurips_2026}
 
 % "preprint" option is used for arXiv or other preprint submissions
  % \usepackage[preprint]{neurips_2026}
@@ -124,7 +124,7 @@
 \begin{abstract}
   In this paper we will test out various methods and strategies for three main categories:
   LLM Fine Tunning, VLLMs, and Test Time Scaling for LLMs, to investigate their mechanisms side effects,
-  and performance benefits.
+  and performance benefits. The Code and Material for this report can be found at \hyperlink{https://github.com/ZainFarhan-Work/ATML.git}{GitHub} (https://github.com/ZainFarhan-Work/ATML.git)
 \end{abstract}
 
 
@@ -141,10 +141,10 @@ We will test different configurations and methods of Fine Tunning, VLLMs, and Te
 \section{Methods and Setup}
 
 \textbf{Fine Tunning:} We use the Qwen3-0.6B Model on the first 40,000 eligible MetaMathQA problems. In source order, so no shuffling.
-We did 1250 updates with an effective batch size of 32. For LoRA $\alpha = 2r$ and dropout is 0.05. k = 128 for OPLoRA.
+We did 1250 updates with an effective batch size of 32. For LoRA $\alpha = 2r$ and dropout is 0.05. k = 128 for OPLoRA \citep{xiong2025oplora}.
 
 \textbf{VLLMs:} For the Vision architecture we use Google's SigLip (base-patch16-224), which is frozen. 196 patch features of dimension 768, cached in FP16 for 20,129 images. For our connector we have a Linear Layer
-going from 768 $\rightarrow$ 1024 then a GELU for activation function, then another Liner Layer (this one keeps it at 1024). We use the Qwen3-0.6B Model for the LLM side again with LoRA r = 16, $\alpha$ = 32, dropout 0.05.
+going from 768 $\rightarrow$ 1024 then a GELU for activation function, then another Liner Layer (this one keeps it at 1024) \citep{liu2023llava}. We use the Qwen3-0.6B Model for the LLM side again with LoRA r = 16, $\alpha$ = 32, dropout 0.05.
 For Caption data we used 6,000 training images with 3 captions each for a total of 18,000 examples. For the grounding template we used template questions from COCO instance annotations with a pool of
 Pool of 6,000 pairs for training. Training images come from train2014.
 
@@ -163,7 +163,7 @@ For the live run we gave it a system prompt of "You are a helpful assistant." an
 
 \begin{table}[t]
 \centering
-\caption{MetaMathQA selection: first 40{,}000 eligible examples in source order (no shuffling, no truncation).}
+\caption{The first 40{,}000 eligible MetaMathQA examples, in source order (no shuffling, no truncation).}
 \label{tab:t1-data}
 \begin{tabular}{lr}
 \toprule
@@ -196,12 +196,21 @@ We did Full Fine Tunning with L2-SP Regularization which adds a penalty term pre
 (\theta_j-\theta_{0,j})^2.
 \]
 
-We did LoRA fine Tunning with ranks 4 and 16, and finally we did OPLoRA with rank 16 and k = 128.
+We did LoRA fine Tunning with ranks 4 and 16, and finally we did OPLoRA with rank 16 and k = 128. OPLoRA prevents the top k biggest in magnitude directions from updating.
+By making a matrix U that when multiplied with $\Delta W$ will give 0 for the relevant directions.
+
+\begin{align*}
+\tilde B = B - U_k\!\left(U_k^{\top}B\right), \qquad
+\tilde A = A - \left(AV_k\right)V_k^{\top}, \qquad
+\Delta W = \frac{\alpha}{r}\,\tilde B\tilde A .
+\end{align*}
+
+
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{../../PA 3/figures/task1/t1_loss.pdf}
-  \caption{Task 1 SFT loss and L2-SP penalty. (a) SFT loss (25-update causal mean) for the five runs over 1{,}250 optimizer updates, log scale; Full FT and Full FT + L2-SP curves nearly coincide. (b) Same curves for updates 200--1250. (c) L2-SP quantities $\Omega=\tfrac12\lVert\theta-\theta_0\rVert_2^2$ (left axis) and $\lambda\Omega$ with $\lambda=10^{-3}$ (right axis). Single seed.}
+  \caption{SFT loss and L2-SP penalty in Task 1. (a) SFT loss for all five runs (25-update mean, log scale); Full FT and Full FT + L2-SP almost overlap. (b) Zoom on updates 200--1250. (c) L2-SP penalty $\Omega=\tfrac12\lVert\theta-\theta_0\rVert_2^2$ (left axis) and $\lambda\Omega$ with $\lambda=10^{-3}$ (right axis). Single seed.}
   \label{fig:t1-loss}
 \end{figure}
 
@@ -209,18 +218,22 @@ We can see in Figure\ref{fig:t1-loss} that FUll Fine Tunning always performed be
 the tradeoff we don't see with just loss can be seen in Figure\ref{fig:t1-loss}. Despite being trained on a more specialized hardware for AI on Kaggle's GPU, Both Full Fine Tunning
 took significantly more time and GPU memory. Additionally, they had the worse retention of previous capabilities. With it demonstrating catastrophic forgetting, while L2-SP regularisation did help fix that, it still had almost half the retention
 compared to any LoRA configuration while still having much more cost.
+The Full FT and the Midpoint for Full FT have very similar performance in terms of loss from Figure\ref{fig:t1-loss} but the difference in retention is not much and considering training time and computem
+it may prove more worthwhile for the midpoint to provide better value. All LoRA variants had similar performance in terms of accuracies and loss, however LoRA 16 did take more compute then both
+OPLoRA and LoRA 4.
+
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{../../PA 3/figures/task1/t1_tradeoff.pdf}
-  \caption{Task 1 gain versus retention and resources. (a) GSM8K gain over baseline against the mean change over HellaSwag, BoolQ and ARC-Easy (open marker: Full FT midpoint). (b) Training time against peak GPU memory; marker area scales with the square root of trainable parameters, labelled in millions. Full FT and L2-SP were trained on a 16\,GB Kaggle GPU, the other three on a 6\,GB laptop GPU, so times are not directly comparable.}
+  \caption{Task 1 gain versus retention and cost. (a) GSM8K gain over the baseline against the mean change on HellaSwag, BoolQ and ARC-Easy (open marker: Full FT at update 625). (b) Training time against peak GPU memory; marker area grows with the square root of trainable parameters (millions shown). Full FT and L2-SP ran on a 16\,GB Kaggle GPU and the others on a 6\,GB laptop GPU, so times are not directly comparable.}
   \label{fig:t1-trade}
 \end{figure}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{../../PA 3/figures/task1/t1_benchmarks.pdf}
-  \caption{Task 1 change from the Qwen3-0.6B baseline, in percentage points, for each evaluation condition (hatched bar: Full FT at the 625-update midpoint). GSM8K: exact match (flexible-extract); HellaSwag and ARC-Easy: normalized accuracy; BoolQ: accuracy. Baseline scores are given in the panel titles. Single seed.}
+  \caption{Task 1 change from the Qwen3-0.6B baseline, in percentage points (hatched bar: Full FT at update 625). GSM8K is flexible-extract exact match, HellaSwag and ARC-Easy use normalized accuracy, and BoolQ uses accuracy. Baseline scores are in the panel titles. Single seed.}
   \label{fig:t1-bench}
 \end{figure}
 
@@ -231,7 +244,7 @@ This suggests that lowered retention is not a guarantee and will depend on the t
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{../../PA 3/figures/task1/t1_diagnostics.pdf}
-  \caption{Task 1 local diagnostics on \texttt{down\_proj} in layers 0, 13 and 27 (shading). (a) Subspace interference $\rho_k$ with $k=128$ (log scale); the dashed line is the value $k/d_{\mathrm{out}}=0.125$ expected for an update with no preference for the protected subspace. (b) Relative update magnitude $\eta=\lVert\Delta W\rVert_F/\lVert W_0\rVert_F$ (log scale). (c) Mean activation correction $R(z)=\lVert\Delta W z\rVert_2/(\lVert W_0 z\rVert_2+10^{-8})$ averaged over the three layers, on math (GSM8K chat-format) and non-math (HellaSwag, raw format) probe prompts, using cached starting-model inputs.}
+  \caption{Task 1 diagnostics on \texttt{down\_proj} in layers 0, 13 and 27 (shading). (a) Subspace interference $\rho_k$ with $k=128$; the dashed line is the value $k/d_{\mathrm{out}}=0.125$ expected for an update with no preference for the protected subspace. (b) Relative update size $\eta=\lVert\Delta W\rVert_F/\lVert W_0\rVert_F$. (c) Mean activation correction $R(z)=\lVert\Delta W z\rVert_2/(\lVert W_0 z\rVert_2+10^{-8})$ over the three layers, on math (GSM8K) and non-math (HellaSwag) probe prompts. Panels (a) and (b) use a log scale.}
   \label{fig:t1-diag}
 \end{figure}
 
@@ -241,7 +254,7 @@ since it does not update All weights, that is not the case. We also see that LoR
 \begin{table}[t]
   \centering
   \footnotesize
-  \caption{Aligned qualitative excerpt (question 0, plain format, greedy, thinking off, 512-token cap). Prompt: ``\emph{Hello! I can fulfill your one wish. What is the one thing you want? I'll do that no matter the cost. You must be specific.}'' \textsc{echo} denotes the prompt repeated verbatim without ``Hello!''; other text is quoted verbatim, with \texttt{[\ldots]} for omissions. LoRA-4, LoRA-16 and OPLoRA-16 gave identical responses. Tok.: generated tokens ($^\dagger$ = 512-token cap reached).}
+  \caption{Question 0, plain format (greedy, thinking off, 512-token cap). Prompt: ``\emph{Hello! I can fulfill your one wish. What is the one thing you want? I'll do that no matter the cost. You must be specific.}'' \textsc{echo} means the prompt repeated verbatim without ``Hello!''; \texttt{[\ldots]} marks omitted text. LoRA-4, LoRA-16 and OPLoRA-16 gave identical responses. Tok.: generated tokens ($^\dagger$ = hit the 512-token cap).}
   \label{tab:t1-excerpt}
   \begin{tabular}{@{}p{0.21\linewidth}r p{0.64\linewidth}@{}}
     \toprule
@@ -258,13 +271,16 @@ since it does not update All weights, that is not the case. We also see that LoR
 
 As an illustrative example, we can see in Table\ref{tab:t1-excerpt} that Fine Tunning does leak into it other responses, with artifacts like "answer = 1"
 coming in, and repetition of the Math answer format. Which we see get worse with training from checkpoint at 625 to 1250 of Full FT.
+This was picked as good example as it very clearly and directly demonstrates Fine Tunning getting leaked in unrelated tasks, as well as the effect getting stronger and worse with more training.
+
+The complete bench mark is in the appendix~\ref{tab:t1-bench}
 
 \subsection{VLLMs}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{../../PA 3/figures/task2/t2_learning_curves.pdf}
-  \caption{Task 2 training and development curves (196 visual tokens). (a) Training loss (25-update mean; the 4 skipped fp16 steps excluded). (b) Development caption loss. (c, d) Development reference-answer NLL (nats per token, log scale) on the grounding and natural-VQA suites with the correct image, the complementary partner image, and no image. (e) Image-swap penalty $\Delta\mathrm{NLL}=\mathrm{NLL}(y\mid q,I_{\text{partner}})-\mathrm{NLL}(y\mid q,I_{\text{correct}})$; positive values mean the correct image makes the reference more likely. Dashed lines mark the stage boundaries (updates 2{,}250 and 3{,}750). Development evaluations at updates 0, 500, 1000, 1500, 2000, 2250, 2500, 3000, 3500, 3750, 4000 and 4500.}
+  \caption{Task 2 training and development curves (196 visual tokens). (a) Training loss (25-update mean, skipped fp16 steps excluded). (b) Development caption loss. (c, d) Development answer NLL (nats per token, log scale) with the correct image, the partner image and no image. (e) Image-swap penalty $\Delta\mathrm{NLL}=\mathrm{NLL}(y\mid q,I_{\text{partner}})-\mathrm{NLL}(y\mid q,I_{\text{correct}})$; positive means the correct image makes the reference more likely. Dashed lines mark the stage boundaries at updates 2{,}250 and 3{,}750.}
   \label{fig:t2-curves}
 \end{figure}
 
@@ -281,7 +297,7 @@ The details about resource cost for this task can be found in the appendix\ref{t
 \begin{table}[t]
   \centering
   \footnotesize
-  \caption{Correct-image advantages and question types, 196 visual tokens. Left: differences in percentage points (accuracy, pair accuracy) and in reference NLL (control $-$ correct, nats), with 95\% pair-bootstrap intervals. Right: accuracy (\%) by question type under each image condition.}
+  \caption{Correct-image advantages and question types (196 visual tokens). Left: differences in percentage points for accuracy and pair accuracy, and in reference NLL (control $-$ correct, nats), with 95\% pair-bootstrap intervals. Right: accuracy (\%) by question type under each image condition.}
   \label{tab:t2-adv}
   \resizebox{\linewidth}{!}{%
   \begin{tabular}{@{}lrrr@{\hspace{14pt}}lrrrr@{}}
@@ -302,7 +318,7 @@ The details about resource cost for this task can be found in the appendix\ref{t
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{../../PA 3/figures/task2/t2_pairs.pdf}
-  \caption{Aligned complementary-image examples from the final test sets (196-token model). Each panel shows one pair: images A and B share the question and have opposite reference answers. Rows give the prediction with the original image (\emph{img}), with the partner's image swapped in (\emph{swap}), and with no image (\emph{none}). Green: matches the original reference; red: does not. Under \emph{swap}, a red answer that equals the partner's reference means the model followed the partner image. (a) Grounded: correct with the right image, answer flips with the swap, and a ``yes'' bias without an image. (b) Image-insensitive: ``yes'' for both images under all conditions. (c) Natural VQA, image-insensitive: ``yes'' for both images, though the question asks about outside knowledge. Pairs are the first in file order for each behaviour (rule in text); pair IDs \texttt{gtest\_presence\_0}, \texttt{gtest\_presence\_4}, \texttt{vtest\_vqa\_357816001\_297522002}.}
+  \caption{Complementary-image examples from the final test sets (196-token model). In each pair, images A and B share a question and have opposite answers. Rows show the prediction with the original image (\emph{img}), the partner's image (\emph{swap}) and no image (\emph{none}); green matches the original reference, red does not. A red \emph{swap} answer equal to the partner's reference means the model followed the partner image. (a) Grounded: the answer flips with the image. (b) Image-insensitive: ``yes'' for both images in every condition. (c) Natural VQA, image-insensitive: ``yes'' for both, though the question needs outside knowledge. Each is the first pair in file order for its behaviour (\texttt{gtest\_presence\_0}, \texttt{gtest\_presence\_4}, \texttt{vtest\_vqa\_357816001\_297522002}).}
   \label{fig:t2-pairs}
 \end{figure}
 
@@ -311,11 +327,29 @@ The details about resource cost for this task can be found in the appendix\ref{t
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{../../PA 3/figures/task3/t3_combined.pdf}
-  \caption{Held-out results (800 questions per dataset, mean over 10 seeded orders). (a, b) Accuracy and oracle coverage versus candidates $N$; ``confidence score'' is self-certainty (MATH) or VisConf (MathVista), RWC is confidence-weighted voting. (c, d) Accuracy versus mean generated tokens: fixed-$N$ self-consistency (labelled by $N$) and the two adaptive controllers with development-selected thresholds.}
+  \caption{Held-out results (800 questions per dataset, mean over 10 seeded orders). (a, b) Accuracy and oracle coverage against the number of candidates $N$. ``Confidence score'' is self-certainty (MATH) or VisConf (MathVista); RWC is confidence-weighted voting. (c, d) Accuracy against mean generated tokens for fixed-$N$ self-consistency (labelled by $N$) and the two adaptive stopping rules.}
   \label{fig:t3-main}
 \end{figure}
 
-We used multiple metrics to judge the quality/correctness of answers, like self consistency, confidence score, confidence + RWC as can be seen in Figure\ref{fig:t3-main}.
+We used multiple metrics to judge the quality/correctness of answers, like self consistency, confidence score, confidence + RWC \citep{kang2025selfcertainty} as can be seen in Figure\ref{fig:t3-main}.
+VisConf is defined as \citep{usman2026visconf}.
+
+\begin{align*}
+c_{i,t} &= \operatorname{clip}_{[0,1]}\!\left(\frac{k_{i,t}-Q_{0.05}(G)}{\max\!\big(Q_{0.95}(G)-Q_{0.05}(G),\,10^{-8}\big)}\right), \\
+C_i &= \frac{1}{T_i}\sum_{t=1}^{T_i}c_{i,t}, \qquad Z_i = V_i\,C_i, \\
+Z^{\mathrm{tok}}_i &= \frac{1}{T_i}\sum_{t=1}^{T_i}c_{i,t}\,v_{i,t},
+\qquad Z^{\mathrm{tok}}_i - Z_i = \operatorname{Cov}_t\!\left(c_{i,t},\,v_{i,t}\right).
+\end{align*}
+
+and self consistency is defined as.
+
+\begin{align*}
+\mathrm{SC}:\quad & \hat a=\arg\max_a \sum_{i=1}^{N}\mathbb{I}\{a_i=a\}, \\
+\mathrm{RWC}:\quad & w_i=\frac{N-r_i}{N-1}, \qquad W(a)=\sum_{i:\,a_i=a}w_i, \qquad \hat a=\arg\max_a W(a),
+\end{align*}
+where $r_i\in\{1,\dots,N\}$ is the descending average rank of the quality score $Q_i$ ($r_i=1$ is the best candidate).
+
+
 All of these had increased accuracy and coverage as number of rollouts increased, which is expected. Accuracy also increased with Mean Token length, though it plateued after 
 around 10.
 
@@ -325,7 +359,7 @@ But accuracy does not increase at the same rate, especially at higher rollouts l
 \begin{table}[t]
   \centering
   \footnotesize
-  \caption{Selection at $N{=}32$ (held-out). Accuracy (\%) and paired difference to self-consistency (SC) in pp with 95\% question-bootstrap intervals. Sampling failure is $100-$oracle; selection failure is oracle $-$ SC. Tokens/question: 21{,}347 (MATH), 8{,}898 (MathVista); first answer 667 and 278.}
+  \caption{Selection at $N{=}32$ (held-out). Accuracy (\%) and paired difference to self-consistency (SC) in pp, with 95\% question-bootstrap intervals. Sampling failure is $100-$oracle; selection failure is oracle $-$ SC. Mean tokens per question: 21{,}347 (MATH), 8{,}898 (MathVista); first answer 667 and 278.}
   \label{tab:t3-methods}
   \begin{tabular}{lrrrr}
     \toprule
@@ -347,14 +381,14 @@ But accuracy does not increase at the same rate, especially at higher rollouts l
   \end{tabular}
 \end{table}
 
-We can see from Table\ref{tab:t3-signals} that self certainty (voting) seems to be the strongest rule. Confidence is also strong but weaker then self certainty.
+We can see from Table\ref{tab:t3-signals} that self consistency (voting) seems to be the strongest rule. Confidence is also strong but weaker then self certainty.
 Vision is weak on its own, but multiplied with Confidence gives us the strongest metric on Math Vista (rollout level).
 Confidence and Vision are negatively correlated (-0.209) so when it is confident it attends to the image less, in other words, te two metric are more likely to contain different information, which is why multiplying them helps.
 
 \begin{table}[t]
   \centering
   \footnotesize
-  \caption{Signals at $N{=}32$ (held-out). Top: within-question correctness gap between top and bottom score quartiles (pp, 95\% question-bootstrap). Bottom: mean within-question length--correctness Spearman $\rho$, and (MathVista) confidence--vision correlations: tokenwise Pearson, rollout-level Spearman, and mean tokenwise covariance.}
+  \caption{Signals at $N{=}32$ (held-out). Top: correctness gap between the top and bottom score quartiles within a question (pp, 95\% question-bootstrap). Bottom: length--correctness Spearman $\rho$ and, for MathVista, confidence--vision correlations (tokenwise Pearson, rollout-level Spearman) and mean tokenwise covariance.}
   \label{tab:t3-signals}
   \begin{tabular}{lrr}
     \toprule
@@ -373,10 +407,10 @@ Confidence and Vision are negatively correlated (-0.209) so when it is confident
   \end{tabular}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[H]
   \centering
   \footnotesize
-  \caption{Adaptive stopping (held-out), settings chosen on development data. $\Delta$: paired difference to fixed-32 SC (pp). Stop: \% of questions stopping at 4/8/16/32 candidates.}
+  \caption{Adaptive stopping (held-out), with settings chosen on development data. $\Delta$ is the paired difference to fixed-32 SC (pp). Stop gives the \% of questions that stopped at 4/8/16/32 candidates.}
   \label{tab:t3-adaptive}
   \begin{tabular}{llrrrrr}
     \toprule
@@ -392,10 +426,10 @@ Confidence and Vision are negatively correlated (-0.209) so when it is confident
   \end{tabular}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[H]
   \centering
   \footnotesize
-  \caption{Live comparison, first 50 held-out MATH questions. Accuracy (\%) with 95\% bootstrap interval; per-question mean tokens and seconds; truncation: any call hit its cap. Paired accuracy differences (pp): parallel$-$single $+4$ [$-$6, $+$14], refine$-$single $+2$ [$-$6, $+$12], refine$-$parallel $-2$ [$-$8, $+$6]. Refinement transitions (wrong$\to$correct / correct$\to$wrong / stay correct / stay wrong): 1/0/27/22.}
+  \caption{Live comparison on the first 50 held-out MATH questions. Accuracy (\%) with 95\% bootstrap interval; tokens and seconds are per-question means; truncation means any call hit its cap. Paired accuracy differences (pp): parallel$-$single $+4$ [$-$6, $+$14], refine$-$single $+2$ [$-$6, $+$12], refine$-$parallel $-2$ [$-$8, $+$6]. Refinement moved 1 answer wrong$\to$correct and 0 correct$\to$wrong (27 stayed correct, 22 stayed wrong).}
   \label{tab:t3-live}
   \begin{tabular}{lrrrrrr}
     \toprule
@@ -409,7 +443,8 @@ Confidence and Vision are negatively correlated (-0.209) so when it is confident
 \end{table}
 
 We also tried adaptive stopping as can be seen in Table\ref{tab:t3-adaptive}. We can see a significant good performance at 4, so we stop if the first four agree.
-It almost halves the cost with almost no loss in accuracy.
+It almost halves the cost with almost no loss in accuracy. But if we again see in FIgure\ref{fig:t3-main}, we can see in panel D that when in Case of a matching fixed size budget and with adaptive
+stopping, it reults in roughly the same accuracy, and the gains are not as much as we saw for the first 4 responses agreeing
 
 in Live comparison on Table\ref{tab:t3-live} we can see among, single long responses, Parallel responses, and refinement, all had very similar accuracies.
 with the total difference being of only 4, we can not say that one strategy is categorically better than other, if anything they give very similar performance.
@@ -426,23 +461,47 @@ to answer the question. The different Test time scaling strategies, as a single 
 More samples increases coverage but not accuracy as we run into a selection problem, and adaptive stopping can help significantly reduce costs, as we saw virtually no reduction in 
 accuracy, when stopping if the first four responses agreed with each other. 
 
-% \small
-% \nocite{*}
-% \bibliographystyle{plainnat}
-% \bibliography{refs}
-% \normalsize
+\small
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\normalsize
 
-% \clearpage
+\clearpage
 
 \appendix
 \section*{appendix}
 
-\section{Resources Taken}
+\section{Fine Tuning Full Benchmark}
 
 \begin{table}[H]
   \centering
   \footnotesize
-  \caption{Task 2 resources on one laptop GPU. Trainable parameters are those enabled in each stage (connector 1.84M; LoRA adds 4.59M from stage 2). Peak memory is GiB; feature caching (SigLIP, 20{,}129 images, 5.8\,GB in FP16) is a one-time cost separate from training and is reused by both runs. Test evaluation covers all 4 conditions on both suites.}
+  \caption{Task 1 zero-shot benchmark scores (\%) and change from the baseline in percentage points. Primary metrics: exact match (GSM8K), normalized accuracy (HellaSwag, ARC-Easy), accuracy (BoolQ); raw accuracy shown for HellaSwag and ARC-Easy. Full FT at update 625 (mid) and 1{,}250; all other models at update 1{,}250. Single seed.}
+  \label{tab:t1-bench}
+  \begin{tabular}{lrrrrrrrrrr}
+    \toprule
+    & \multicolumn{2}{c}{GSM8K} & \multicolumn{2}{c}{HellaSwag} & \multicolumn{2}{c}{BoolQ} & \multicolumn{2}{c}{ARC-E} & \multicolumn{2}{c}{Raw acc.} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
+    Condition & Score & $\Delta$ & Score & $\Delta$ & Score & $\Delta$ & Score & $\Delta$ & HS & ARC \\
+    \midrule
+    Baseline & 43.6 & -- & 47.3 & -- & 64.4 & -- & 56.1 & -- & 37.6 & 60.9 \\
+    \midrule
+    Full FT @625 & 57.0 & +13.4 & 45.7 & $-$1.7 & 58.2 & $-$6.2 & 62.0 & +5.9 & 37.1 & 65.2 \\
+    Full FT @1250 & 64.4 & +20.8 & 45.9 & $-$1.4 & 58.9 & $-$5.4 & 63.3 & +7.2 & 37.4 & 66.4 \\
+    Full FT + L2-SP & 64.6 & +21.0 & 46.5 & $-$0.8 & 63.9 & $-$0.4 & 63.5 & +7.4 & 37.6 & 66.4 \\
+    LoRA-4 & 60.3 & +16.7 & 47.1 & $-$0.2 & 70.6 & +6.2 & 62.7 & +6.7 & 37.7 & 65.7 \\
+    LoRA-16 & 62.9 & +19.3 & 47.2 & $-$0.1 & 70.9 & +6.5 & 63.5 & +7.4 & 37.6 & 66.0 \\
+    OPLoRA-16 & 62.1 & +18.5 & 47.1 & $-$0.2 & 70.2 & +5.8 & 63.3 & +7.3 & 37.8 & 66.2 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Resources Taken fo VLLMs}
+
+\begin{table}[H]
+  \centering
+  \footnotesize
+  \caption{Task 2 resources on one laptop GPU. Trainable parameters per stage (connector 1.84M; LoRA adds 4.59M from stage 2). Peak memory in GiB. Feature caching (SigLIP, 20{,}129 images, 5.8\,GB in FP16) is a one-time cost shared by both runs. Test evaluation covers all four image conditions on both suites.}
   \label{tab:t2-resources}
   \resizebox{\linewidth}{!}{%
   \begin{tabular}{lrrrrrr}
